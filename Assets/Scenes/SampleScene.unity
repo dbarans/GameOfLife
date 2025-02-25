@@ -122,6 +122,53 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &7566975
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7566977}
+  - component: {fileID: 7566976}
+  m_Layer: 0
+  m_Name: CellRenderer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &7566976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7566975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a96d5ff7afe7cb4dbe34ec6163a2670, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tilemap: {fileID: 764461032}
+  cellTile: {fileID: 11400000, guid: 44f5323d9ba457341a3b640a14abe6d1, type: 2}
+  cellManager: {fileID: 1101486746}
+--- !u!4 &7566977
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7566975}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.769238, y: -4.127263, z: -0.2053204}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &157721065
 GameObject:
   m_ObjectHideFlags: 0
@@ -147,7 +194,7 @@ Grid:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 157721065}
   m_Enabled: 1
-  m_CellSize: {x: 1, y: 1, z: 0}
+  m_CellSize: {x: 1.2, y: 1.2, z: 0}
   m_CellGap: {x: 0, y: 0, z: 0}
   m_CellLayout: 0
   m_CellSwizzle: 0
@@ -197,7 +244,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tilemap: {fileID: 764461032}
-  cellTile: {fileID: 11400000, guid: 44f5323d9ba457341a3b640a14abe6d1, type: 2}
+  cellManager: {fileID: 1101486746}
 --- !u!4 &500857474
 Transform:
   m_ObjectHideFlags: 0
@@ -316,7 +363,6 @@ GameObject:
   - component: {fileID: 764461029}
   - component: {fileID: 764461032}
   - component: {fileID: 764461031}
-  - component: {fileID: 764461030}
   m_Layer: 0
   m_Name: Tilemap
   m_TagString: Untagged
@@ -339,22 +385,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 157721067}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &764461030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 764461028}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96de939c82605e46be4e23564cf9a53, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tilemap: {fileID: 764461032}
-  cellTile: {fileID: 11400000, guid: 44f5323d9ba457341a3b640a14abe6d1, type: 2}
-  width: 100
-  height: 100
 --- !u!483693784 &764461031
 TilemapRenderer:
   m_ObjectHideFlags: 0
@@ -442,6 +472,50 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &1101486745
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1101486747}
+  - component: {fileID: 1101486746}
+  m_Layer: 0
+  m_Name: CellManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1101486746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1101486745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f5014e3251c4bc429e2a03b0e3add31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1101486747
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1101486745}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1.1683742, y: 0.12815745, z: 0.038619433}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -449,3 +523,5 @@ SceneRoots:
   - {fileID: 519420032}
   - {fileID: 157721067}
   - {fileID: 500857474}
+  - {fileID: 1101486747}
+  - {fileID: 7566977}
