@@ -94,16 +94,6 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.unity.adaptiveperformance": {
-      "version": "4.0.1",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.profiling.core": "1.0.2",
-        "com.unity.subsystemregistration": "1.1.0"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.burst": {
       "version": "1.8.16",
       "depth": 3,
@@ -160,16 +150,6 @@
         "com.unity.2d.aseprite": "1.1.4"
       }
     },
-    "com.unity.feature.mobile": {
-      "version": "1.0.0",
-      "depth": 0,
-      "source": "builtin",
-      "dependencies": {
-        "com.unity.mobile.android-logcat": "1.4.2",
-        "com.unity.adaptiveperformance": "4.0.1",
-        "com.unity.mobile.notifications": "2.3.2"
-      }
-    },
     "com.unity.ide.rider": {
       "version": "3.0.28",
       "depth": 0,
@@ -195,15 +175,6 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
-    "com.unity.inputsystem": {
-      "version": "https://github.com/Unity-Technologies/InputSystem.git?path=Packages/com.unity.inputsystem#1.6.3",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.modules.uielements": "1.0.0"
-      },
-      "hash": "0d0891efc00ce912af6f03974eac0b8afd20a8ac"
-    },
     "com.unity.mathematics": {
       "version": "1.2.6",
       "depth": 2,
@@ -212,34 +183,18 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.mobile.android-logcat": {
-      "version": "1.4.2",
-      "depth": 1,
+      "version": "1.4.4",
+      "depth": 0,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.mobile.notifications": {
       "version": "2.3.2",
-      "depth": 1,
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.modules.androidjni": "1.0.0"
-      },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.profiling.core": {
-      "version": "1.0.2",
-      "depth": 2,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.subsystemregistration": {
-      "version": "1.1.1",
-      "depth": 2,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.modules.subsystems": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
