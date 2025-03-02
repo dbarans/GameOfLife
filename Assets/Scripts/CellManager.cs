@@ -31,8 +31,8 @@ public class CellManager : MonoBehaviour
         return livingCells.ContainsKey(position);
     }
 
-    public List<Vector3Int> GetLivingCells()
+    public IReadOnlyDictionary<Vector3Int, bool> GetLivingCells()
     {
-        return new List<Vector3Int>(livingCells.Keys);
+        return livingCells;
     }
 }
