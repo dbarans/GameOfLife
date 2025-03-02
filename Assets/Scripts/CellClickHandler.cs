@@ -8,6 +8,7 @@ public class CellClickHandler : MonoBehaviour
 
     private Camera mainCamera;
     private bool firstClickState;
+    private Vector2 prevTouchDelta; 
 
     void Start()
     {
@@ -22,18 +23,58 @@ public class CellClickHandler : MonoBehaviour
 
     void Update()
     {
-        if (Input.touchCount > 0)
+        if (Input.touchCount == 1)
         {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
-            {
-                Vector3Int cellPosition = GetCellFromTouch(touch.position);
+            HandleSingleTouch();
+        }
+        else if (Input.touchCount == 2)
+        {
+            HandleTwoTouches();
+        }
+        else
+        {
+            prevTouchDelta = Vector2.zero;
+        }
+    }
 
-                if (touch.phase == TouchPhase.Began)
-                    firstClickState = cellManager.IsCellAlive(cellPosition);
+    void HandleSingleTouch()
+    {
+        Touch touch = Input.GetTouch(0);
+        if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
+        {
+            Vector3Int cellPosition = GetCellFromTouch(touch.position);
 
-                HandleTouch(cellPosition);
-            }
+            if (touch.phase == TouchPhase.Began)
+                firstClickState = cellManager.IsCellAlive(cellPosition);
+
+            HandleTouch(cellPosition);
+        }
+    }
+    void HandleTwoTouches()
+    {
+        Touch touchZero = Input.GetTouch(0);
+        Touch touchOne = Input.GetTouch(1);
+
+        Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+        Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+
+        if (touchZero.phase == TouchPhase.Began || touchOne.phase == TouchPhase.Began)
+        {
+            prevTouchDelta = (touchZeroPrevPos + touchOnePrevPos) / 2f; 
+            return; 
+        }
+
+        if (touchZero.phase == TouchPhase.Moved || touchOne.phase == TouchPhase.Moved)
+        {
+            Vector2 currentTouchPos = (touchZero.position + touchOne.position) / 2f;
+            Vector2 previousTouchPos = (touchZeroPrevPos + touchOnePrevPos) / 2f;
+            Vector3 currentWorldPos = mainCamera.ScreenToWorldPoint(currentTouchPos);
+            Vector3 onePixelRightWorldPos = mainCamera.ScreenToWorldPoint(currentTouchPos + Vector2.right);
+            float worldUnitsPerPixel = (onePixelRightWorldPos - currentWorldPos).magnitude;
+            Vector2 pixelDelta = currentTouchPos - previousTouchPos;
+            Vector3 move = new Vector3(pixelDelta.x, pixelDelta.y, 0) * worldUnitsPerPixel;
+
+            mainCamera.transform.position -= move; 
         }
     }
 
