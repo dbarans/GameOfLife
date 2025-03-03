@@ -13,6 +13,12 @@ public class CellClickHandler : MonoBehaviour
     private bool firstClickState;
     private Vector2 prevTouchDelta;
 
+    private enum TouchState { Idle, WaitingForSecondTouch, SingleTouch, MultiTouch }
+    private TouchState currentState = TouchState.Idle;
+    private float singleTouchTimer;
+    private float singleTouchDelay = 0.1f;
+    private Touch singleTouch;
+
     void Start()
     {
         mainCamera = Camera.main;
@@ -27,23 +33,58 @@ public class CellClickHandler : MonoBehaviour
 
     void Update()
     {
-        if (Input.touchCount == 1)
+        switch (currentState)
         {
-            HandleSingleTouch();
-        }
-        else if (Input.touchCount == 2)
-        {
-            HandleTwoTouches();
-        }
-        else
-        {
-            prevTouchDelta = Vector2.zero;
+            case TouchState.Idle:
+                if (Input.touchCount == 1)
+                {
+                    singleTouch = Input.GetTouch(0);
+                    singleTouchTimer = Time.time;
+                    currentState = TouchState.WaitingForSecondTouch;
+                }
+                else if (Input.touchCount == 2)
+                {
+                    currentState = TouchState.MultiTouch;
+                    HandleTwoTouches();
+                }
+                break;
+            case TouchState.WaitingForSecondTouch:
+                if (Input.touchCount == 2)
+                {
+                    currentState = TouchState.MultiTouch;
+                    HandleTwoTouches();
+                }
+                else if (Time.time - singleTouchTimer > singleTouchDelay)
+                {
+                    currentState = TouchState.SingleTouch;
+                    HandleSingleTouch(singleTouch);
+                }
+                break;
+            case TouchState.SingleTouch:
+                if (Input.touchCount == 0)
+                {
+                    currentState = TouchState.Idle;
+                }
+                else
+                {
+                    HandleSingleTouch(Input.GetTouch(0));
+                }
+                break;
+            case TouchState.MultiTouch:
+                if (Input.touchCount < 2)
+                {
+                    currentState = TouchState.Idle;
+                }
+                else
+                {
+                    HandleTwoTouches();
+                }
+                break;
         }
     }
 
-    void HandleSingleTouch()
+    void HandleSingleTouch(Touch touch)
     {
-        Touch touch = Input.GetTouch(0);
         if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
         {
             Vector3Int cellPosition = GetCellFromTouch(touch.position);
@@ -65,21 +106,20 @@ public class CellClickHandler : MonoBehaviour
 
         if (touchZero.phase == TouchPhase.Began || touchOne.phase == TouchPhase.Began)
         {
-            prevTouchDelta = (touchZeroPrevPos + touchOnePrevPos) / 2f;
+            prevTouchDelta = (touchZero.position + touchOne.position) / 2f;
             return;
         }
 
         if (touchZero.phase == TouchPhase.Moved || touchOne.phase == TouchPhase.Moved)
         {
             Vector2 currentTouchPos = (touchZero.position + touchOne.position) / 2f;
-            Vector2 previousTouchPos = (touchZeroPrevPos + touchOnePrevPos) / 2f;
+            Vector2 previousTouchPos = prevTouchDelta;
 
             float prevTouchDistance = Vector2.Distance(touchZeroPrevPos, touchOnePrevPos);
             float currentTouchDistance = Vector2.Distance(touchZero.position, touchOne.position);
             float distanceDelta = currentTouchDistance - prevTouchDistance;
 
             mainCamera.orthographicSize -= distanceDelta * zoomSpeed * mainCamera.orthographicSize * Time.deltaTime;
-            Debug.Log(minZoom + " " + maxZoom);
             mainCamera.orthographicSize = Mathf.Clamp(mainCamera.orthographicSize, minZoom, maxZoom);
 
             Vector3 currentWorldPos = mainCamera.ScreenToWorldPoint(currentTouchPos);
@@ -88,6 +128,8 @@ public class CellClickHandler : MonoBehaviour
             Vector2 pixelDelta = currentTouchPos - previousTouchPos;
             Vector3 move = new Vector3(pixelDelta.x, pixelDelta.y, 0) * worldUnitsPerPixel;
             mainCamera.transform.position -= move;
+
+            prevTouchDelta = currentTouchPos;
         }
     }
 
