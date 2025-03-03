@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CellManager : MonoBehaviour
 {
-    private Dictionary<Vector3Int, bool> livingCells = new Dictionary<Vector3Int, bool>();
+    private HashSet<Vector3Int> livingCells = new HashSet<Vector3Int>();
     private bool stateChanged = false;
 
     public bool HasStateChanged()
@@ -19,7 +19,7 @@ public class CellManager : MonoBehaviour
     public void SetCellState(Vector3Int position, bool isAlive)
     {
         if (isAlive)
-            livingCells[position] = true;
+            livingCells.Add(position);
         else
             livingCells.Remove(position);
 
@@ -28,10 +28,10 @@ public class CellManager : MonoBehaviour
 
     public bool IsCellAlive(Vector3Int position)
     {
-        return livingCells.ContainsKey(position);
+        return livingCells.Contains(position);
     }
 
-    public IReadOnlyDictionary<Vector3Int, bool> GetLivingCells()
+    public IReadOnlyCollection<Vector3Int> GetLivingCells()
     {
         return livingCells;
     }

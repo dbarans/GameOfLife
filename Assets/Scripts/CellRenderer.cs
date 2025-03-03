@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using System.Linq;
+
 
 public class CellRenderer : MonoBehaviour
 {
@@ -63,11 +65,11 @@ public class CellRenderer : MonoBehaviour
     private void UpdateView()
     {
         tilemap.ClearAllTiles();
-        IReadOnlyDictionary<Vector3Int, bool> livingCells = cellManager.GetLivingCells();
+        IReadOnlyCollection<Vector3Int> livingCells = cellManager.GetLivingCells();
         int maxTilesOnScreen = tilesWide * tilesHigh;
-        if (livingCells.Count < maxTilesOnScreen)
+        if (livingCells.Count() < maxTilesOnScreen)
         {
-            foreach (Vector3Int pos in livingCells.Keys)
+            foreach (Vector3Int pos in livingCells)
             {
                 tilemap.SetTile(pos, cellTile);
             }
@@ -79,7 +81,7 @@ public class CellRenderer : MonoBehaviour
                 for (int y = bottommostTile; y <= topmostTile; y++)
                 {
                     Vector3Int pos = new Vector3Int(x, y, 0);
-                    if (livingCells.ContainsKey(pos))
+                    if (livingCells.Contains(pos))
                     {
                         tilemap.SetTile(pos, cellTile);
                     }
