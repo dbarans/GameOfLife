@@ -20,7 +20,7 @@ public class FPSCounter : MonoBehaviour
 
         if (fpsText != null)
         {
-            fpsText.text = "FPS: " + fps.ToString("F2");
+            fpsText.text = fps.ToString("F0");
         }
     }
 

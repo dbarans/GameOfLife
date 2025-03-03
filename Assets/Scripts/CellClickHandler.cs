@@ -5,14 +5,18 @@ public class CellClickHandler : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private CellManager cellManager;
+    [SerializeField] private float zoomSpeed;
+    [SerializeField] private float minZoom;
+    [SerializeField] private float maxZoom;
 
     private Camera mainCamera;
     private bool firstClickState;
-    private Vector2 prevTouchDelta; 
+    private Vector2 prevTouchDelta;
 
     void Start()
     {
         mainCamera = Camera.main;
+        mainCamera.nearClipPlane = 0.1f;
 
         if (tilemap == null)
             Debug.LogError("Tilemap not assigned to CellClickHandler!");
@@ -50,6 +54,7 @@ public class CellClickHandler : MonoBehaviour
             HandleTouch(cellPosition);
         }
     }
+
     void HandleTwoTouches()
     {
         Touch touchZero = Input.GetTouch(0);
@@ -60,21 +65,29 @@ public class CellClickHandler : MonoBehaviour
 
         if (touchZero.phase == TouchPhase.Began || touchOne.phase == TouchPhase.Began)
         {
-            prevTouchDelta = (touchZeroPrevPos + touchOnePrevPos) / 2f; 
-            return; 
+            prevTouchDelta = (touchZeroPrevPos + touchOnePrevPos) / 2f;
+            return;
         }
 
         if (touchZero.phase == TouchPhase.Moved || touchOne.phase == TouchPhase.Moved)
         {
             Vector2 currentTouchPos = (touchZero.position + touchOne.position) / 2f;
             Vector2 previousTouchPos = (touchZeroPrevPos + touchOnePrevPos) / 2f;
+
+            float prevTouchDistance = Vector2.Distance(touchZeroPrevPos, touchOnePrevPos);
+            float currentTouchDistance = Vector2.Distance(touchZero.position, touchOne.position);
+            float distanceDelta = currentTouchDistance - prevTouchDistance;
+
+            mainCamera.orthographicSize -= distanceDelta * zoomSpeed * mainCamera.orthographicSize * Time.deltaTime;
+            Debug.Log(minZoom + " " + maxZoom);
+            mainCamera.orthographicSize = Mathf.Clamp(mainCamera.orthographicSize, minZoom, maxZoom);
+
             Vector3 currentWorldPos = mainCamera.ScreenToWorldPoint(currentTouchPos);
             Vector3 onePixelRightWorldPos = mainCamera.ScreenToWorldPoint(currentTouchPos + Vector2.right);
             float worldUnitsPerPixel = (onePixelRightWorldPos - currentWorldPos).magnitude;
             Vector2 pixelDelta = currentTouchPos - previousTouchPos;
             Vector3 move = new Vector3(pixelDelta.x, pixelDelta.y, 0) * worldUnitsPerPixel;
-
-            mainCamera.transform.position -= move; 
+            mainCamera.transform.position -= move;
         }
     }
 
