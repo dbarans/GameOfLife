@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class CellClickHandler : MonoBehaviour
+public class TouchHandler : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private CellManager cellManager;
@@ -71,11 +71,11 @@ public class CellClickHandler : MonoBehaviour
                 }
                 break;
             case TouchState.MultiTouch:
-                if (Input.touchCount < 2)
+                if (Input.touchCount < 1)
                 {
                     currentState = TouchState.Idle;
                 }
-                else
+                else if (Input.touchCount != 1) 
                 {
                     HandleTwoTouches();
                 }

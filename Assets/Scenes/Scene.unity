@@ -248,7 +248,7 @@ MonoBehaviour:
   cellManager: {fileID: 1101486746}
   zoomSpeed: 0.1
   minZoom: 5
-  maxZoom: 100
+  maxZoom: 1000
 --- !u!4 &500857474
 Transform:
   m_ObjectHideFlags: 0
