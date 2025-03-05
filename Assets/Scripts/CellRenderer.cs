@@ -8,7 +8,7 @@ public class CellRenderer : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private Tile cellTile;
-    [SerializeField] private CellManager cellManager;
+    [SerializeField] private CellGrid cellManager;
     [SerializeField] private Camera mainCamera;
     private Vector2 cellSize;
     private int tilesWide;

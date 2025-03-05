@@ -4,7 +4,7 @@ using UnityEngine.Tilemaps;
 public class TouchHandler : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
-    [SerializeField] private CellManager cellManager;
+    [SerializeField] private CellGrid cellManager;
     [SerializeField] private float zoomSpeed;
     [SerializeField] private float minZoom;
     [SerializeField] private float maxZoom;

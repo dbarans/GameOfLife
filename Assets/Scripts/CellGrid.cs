@@ -1,10 +1,16 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CellManager : MonoBehaviour
+public class CellGrid : MonoBehaviour
 {
     private HashSet<Vector3Int> livingCells = new HashSet<Vector3Int>();
+    private HashSet<Vector3Int> nextGeneration = new HashSet<Vector3Int>();
     private bool stateChanged = false;
+
+    private static readonly object gridLock = new object();
+
+
 
     public bool HasStateChanged()
     {
@@ -35,4 +41,25 @@ public class CellManager : MonoBehaviour
     {
         return livingCells;
     }
+    public void UpdateNextGeneration(IReadOnlyCollection<Vector3Int> newGeneration)
+    {
+        lock (gridLock)
+        {
+            nextGeneration.Clear();
+
+            foreach (Vector3Int cell in newGeneration)
+            {
+                nextGeneration.Add(cell);
+            }
+            stateChanged = true;
+        }
+    }
+    public void SwapGenerations()
+    {
+        lock (gridLock)
+        {
+            (livingCells, nextGeneration) = (nextGeneration, livingCells);
+        }
+    }
+
 }
