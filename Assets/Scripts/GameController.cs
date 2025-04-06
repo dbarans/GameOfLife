@@ -28,7 +28,6 @@ public class GameController : MonoBehaviour
         {
             IReadOnlyCollection<Vector3Int> livingCells = CellGrid.GetLivingCells();
             HashSet<Vector3Int> newGeneration = CalculateNextGeneration(livingCells);
-            Debug.Log(newGeneration);
             CellGrid.UpdateNextGeneration(newGeneration);
             Interlocked.Exchange(ref isNextGenCalculated, 1);
         }
