@@ -6,7 +6,7 @@ using System.Threading;
 
 public class GameController : MonoBehaviour
 {
-    private float genPerSec = 5f;
+    [SerializeField] private float genPerSec = 5f;
     private float timeSinceLastGen = 0;
     private int isNextGenCalculated = 0;
     [SerializeField] private CellGrid CellGrid;
@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
+        CellGrid.CreateRandomGeneration();
         Task.Run(() => GenerateNextGeneration());
     }
     private void Update()
@@ -27,6 +28,7 @@ public class GameController : MonoBehaviour
         {
             IReadOnlyCollection<Vector3Int> livingCells = CellGrid.GetLivingCells();
             HashSet<Vector3Int> newGeneration = CalculateNextGeneration(livingCells);
+            Debug.Log(newGeneration);
             CellGrid.UpdateNextGeneration(newGeneration);
             Interlocked.Exchange(ref isNextGenCalculated, 1);
         }
@@ -45,7 +47,59 @@ public class GameController : MonoBehaviour
     private HashSet<Vector3Int> CalculateNextGeneration(IReadOnlyCollection<Vector3Int> genIn)
     {
         HashSet<Vector3Int> genOut = new HashSet<Vector3Int>();
-        //logic to calculate new generation
+        HashSet<Vector3Int> cellsToCheck = new HashSet<Vector3Int>(genIn);
+        foreach (Vector3Int cell in genIn)
+        {
+            for (int x = -1; x <= 1; x++)
+            {
+                for (int y = -1; y <= 1; y++)
+                {
+                    Vector3Int neighbor = new Vector3Int(cell.x + x, cell.y + y, cell.z);
+                    cellsToCheck.Add(neighbor);    
+                }
+            }
+        }
+        foreach (Vector3Int cell in cellsToCheck)
+        {
+
+            int neighbors = CheckNeighbors(cell);
+            bool isCellAlive = CellGrid.IsCellAlive(cell);
+            if (isCellAlive)
+            {
+                if (neighbors == 2 || neighbors == 3)
+                {
+                    genOut.Add(cell);
+                }
+            }
+            else
+            {
+                if (neighbors == 3)
+                {
+                    genOut.Add(cell);
+                }
+            }
+        }
+
         return genOut;
+    }
+    private int CheckNeighbors(Vector3Int cell)
+    {
+        int neighborsCount = 0;
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                if (x == 0 && y == 0) continue;
+                Vector3Int neighbor = new Vector3Int(cell.x + x, cell.y + y, cell.z);
+                bool isNeighbourAlive = CellGrid.IsCellAlive(neighbor);
+                if (isNeighbourAlive) 
+                {
+                    neighborsCount++;
+                }
+            }
+        }
+
+
+            return neighborsCount;
     }
 }

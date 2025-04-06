@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class CellGrid : MonoBehaviour
@@ -59,6 +60,21 @@ public class CellGrid : MonoBehaviour
         lock (gridLock)
         {
             (livingCells, nextGeneration) = (nextGeneration, livingCells);
+        }
+    }
+    public void CreateRandomGeneration()
+    {
+        int width = 100;
+        int height = 100;
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (UnityEngine.Random.value > 0.5f)
+                {
+                    livingCells.Add(new Vector3Int(x, y, 0));
+                }
+            }
         }
     }
 
