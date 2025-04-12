@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
 
 public class TouchHandler : MonoBehaviour
@@ -35,6 +36,11 @@ public class TouchHandler : MonoBehaviour
 
     void Update()
     {
+        if (Input.touchCount > 0 && IsPointerOverUI(0))
+        {
+            currentState = TouchState.Idle;
+            return;
+        }
         switch (currentState)
         {
             case TouchState.Idle:
@@ -152,4 +158,14 @@ public class TouchHandler : MonoBehaviour
         worldPosition.z = 0;
         return tilemap.WorldToCell(worldPosition);
     }
+    private bool IsPointerOverUI(int fingerId)
+    {
+        if (EventSystem.current == null) return false;
+
+        if (Input.touchCount > 0)
+            return EventSystem.current.IsPointerOverGameObject(fingerId);
+        else
+            return EventSystem.current.IsPointerOverGameObject();
+    }
+
 }
