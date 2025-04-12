@@ -108,6 +108,8 @@ public class GameController : MonoBehaviour
 
    public void RunGame()
     {
+        if (CellGrid.IsLivingCellsSetEmpty()) return;
+
         GenerateNextGeneration();
         _isRunning = true;
     }

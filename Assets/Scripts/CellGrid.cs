@@ -86,5 +86,9 @@ public class CellGrid : MonoBehaviour
             stateChanged = true;
         }
     }
+    public bool IsLivingCellsSetEmpty()
+    {
+        return livingCells.Count == 0;
+    }    
 
 }
