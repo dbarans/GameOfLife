@@ -77,5 +77,14 @@ public class CellGrid : MonoBehaviour
             }
         }
     }
+    public void ClearGrid()
+    {
+        lock (gridLock)
+        {
+            livingCells.Clear();
+            nextGeneration.Clear();
+            stateChanged = true;
+        }
+    }
 
 }

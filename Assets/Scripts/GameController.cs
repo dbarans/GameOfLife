@@ -7,20 +7,24 @@ using System.Threading;
 public class GameController : MonoBehaviour
 {
     [SerializeField] private float genPerSec = 5f;
+    private bool _isRunning = false;
     private float timeSinceLastGen = 0;
     private int isNextGenCalculated = 0;
     [SerializeField] private CellGrid CellGrid;
 
     private static readonly object nextGenLock = new object();
 
-    private void Start()
+    public bool isRunning
     {
-        CellGrid.CreateRandomGeneration();
-        Task.Run(() => GenerateNextGeneration());
+        get { return _isRunning; }
     }
+
     private void Update()
     {
-        UpdateGeneration();
+        if (_isRunning)
+        {
+            UpdateGeneration();
+        }
     }
     private void GenerateNextGeneration() 
     {
@@ -101,4 +105,23 @@ public class GameController : MonoBehaviour
 
             return neighborsCount;
     }
+
+   public void RunGame()
+    {
+        GenerateNextGeneration();
+        _isRunning = true;
+    }
+    public void PauseGame()
+    {
+        _isRunning = false;
+    }
+    public void ResetGame()
+    {
+        _isRunning = false;
+        CellGrid.ClearGrid();
+        Interlocked.Exchange(ref isNextGenCalculated, 0);
+    }
+    
+
+ 
 }

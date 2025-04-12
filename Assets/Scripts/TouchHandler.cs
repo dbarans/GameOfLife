@@ -5,6 +5,7 @@ public class TouchHandler : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private CellGrid cellManager;
+    [SerializeField] private GameController gameController;
     [SerializeField] private float zoomSpeed;
     [SerializeField] private float minZoom;
     [SerializeField] private float maxZoom;
@@ -18,6 +19,7 @@ public class TouchHandler : MonoBehaviour
     private float singleTouchTimer;
     private float singleTouchDelay = 0.1f;
     private Touch singleTouch;
+    
 
     void Start()
     {
@@ -135,6 +137,8 @@ public class TouchHandler : MonoBehaviour
 
     void HandleTouch(Vector3Int cellPosition)
     {
+        if (gameController.isRunning) return;
+
         bool isAlive = cellManager.IsCellAlive(cellPosition);
         if (firstClickState == isAlive)
         {
