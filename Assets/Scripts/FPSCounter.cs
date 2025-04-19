@@ -10,7 +10,7 @@ public class FPSCounter : MonoBehaviour
     private void Start()
     {
         float refreshRate = (float)Screen.currentResolution.refreshRateRatio.value;
-        Application.targetFrameRate = !float.IsNaN(refreshRate) ? (int)refreshRate : 144; //for dev purposes, change to 60
+        Application.targetFrameRate = !float.IsNaN(refreshRate) ? (int)refreshRate : 60;
     }
     void Update()
     {
