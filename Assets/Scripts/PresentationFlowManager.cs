@@ -1,25 +1,21 @@
 using UnityEngine;
 using DG.Tweening;
 using System.Collections.Generic;
+using System;
 
 public class PresentationFlowManager : MonoBehaviour
 {
-    [Header("Sequence Elements")]
     [SerializeField] private List<GameObject> sequenceElementObjects;
 
-    [Header("Interaction Settings")]
     [SerializeField] private float animationSpeedUpFactor = 2.0f;
 
     private Sequence mainFlowSequence;
     private Sequence activeStepSequence;
+    private bool presentationFinished = false;
 
     void Awake()
     {
         InitializeAllElements();
-    }
-    private void Start()
-    {
-        StartPresentationFlow();
     }
 
     void OnDisable()
@@ -28,34 +24,6 @@ public class PresentationFlowManager : MonoBehaviour
         DOTween.KillAll();
     }
 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (activeStepSequence != null && activeStepSequence.IsPlaying())
-            {
-                if (activeStepSequence.timeScale == 1.0f)
-                {
-                    activeStepSequence.timeScale = animationSpeedUpFactor;
-                }
-                else
-                {
-                    activeStepSequence.timeScale = 1.0f;
-                }
-            }
-            else if (mainFlowSequence != null && mainFlowSequence.IsPlaying())
-            {
-                if (mainFlowSequence.timeScale == 1.0f)
-                {
-                    mainFlowSequence.timeScale = animationSpeedUpFactor;
-                }
-                else
-                {
-                    mainFlowSequence.timeScale = 1.0f;
-                }
-            }
-        }
-    }
 
     private void InitializeAllElements()
     {
@@ -85,13 +53,20 @@ public class PresentationFlowManager : MonoBehaviour
         }
     }
 
-    private void StartPresentationFlow()
+    public void StartPresentation(Action onCompleted)
     {
+        InitializeAllElements();
+        presentationFinished = false;
+
+        mainFlowSequence?.Kill();
+
         mainFlowSequence = DOTween.Sequence();
         mainFlowSequence.SetAutoKill(false);
 
         if (sequenceElementObjects == null || sequenceElementObjects.Count == 0)
         {
+            Debug.LogWarning("No sequence elements to present. Calling onCompleted callback immediately.");
+            onCompleted?.Invoke();
             return;
         }
 
@@ -100,6 +75,7 @@ public class PresentationFlowManager : MonoBehaviour
             GameObject go = sequenceElementObjects[i];
             if (go == null)
             {
+                Debug.LogWarning($"GameObject at position {i} in sequenceElementObjects is null. Skipping.");
                 continue;
             }
 
@@ -126,7 +102,25 @@ public class PresentationFlowManager : MonoBehaviour
             }
         }
 
-        mainFlowSequence.AppendCallback(() => Debug.Log("Presentation finished!"));
+        mainFlowSequence.AppendCallback(() =>
+        {
+            Debug.Log("Presentation finished!");
+            presentationFinished = true;
+            onCompleted?.Invoke();
+        });
+
         mainFlowSequence.Play();
+    }
+
+    public void StopPresentation()
+    {
+        mainFlowSequence?.Kill();
+        InitializeAllElements();
+        Debug.Log("Presentation stopped.");
+    }
+
+    public bool IsPresentationFinished()
+    {
+        return presentationFinished;
     }
 }

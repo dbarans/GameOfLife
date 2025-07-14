@@ -11,12 +11,19 @@ public class GameController : MonoBehaviour
     private float timeSinceLastGen = 0;
     private int isNextGenCalculated = 0;
     [SerializeField] private CellGrid CellGrid;
+    [SerializeField] private Camera mainCamera;
+    private Color cameraBackgroundColor;
 
     private static readonly object nextGenLock = new object();
 
     public bool isRunning
     {
         get { return _isRunning; }
+    }
+
+    private void Start()
+    {
+        cameraBackgroundColor = mainCamera.backgroundColor;
     }
 
     private void Update()
@@ -111,14 +118,18 @@ public class GameController : MonoBehaviour
         if (CellGrid.IsLivingCellsSetEmpty()) return;
 
         GenerateNextGeneration();
+        mainCamera.backgroundColor = Color.black;
         _isRunning = true;
+
     }
     public void PauseGame()
     {
+        mainCamera.backgroundColor = cameraBackgroundColor;
         _isRunning = false;
     }
     public void ResetGame()
     {
+        mainCamera.backgroundColor = cameraBackgroundColor;
         _isRunning = false;
         CellGrid.ClearGrid();
         Interlocked.Exchange(ref isNextGenCalculated, 0);

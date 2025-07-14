@@ -12,6 +12,7 @@ public class ButtonPanelSlider : MonoBehaviour
     [SerializeField] private Vector2 hiddenPosition;
     [SerializeField] private float animationDuration;
     [SerializeField] private GameObject slideInButton;
+    private bool isExtended = false;
 
     private void Awake()
     {
@@ -26,6 +27,7 @@ public class ButtonPanelSlider : MonoBehaviour
             .OnComplete(() =>
             {
                 slideInButton.SetActive(true);
+                isExtended = false;
             });
         
     }
@@ -33,6 +35,12 @@ public class ButtonPanelSlider : MonoBehaviour
     {
         slideInButton.SetActive(false);
         rectTransform.DOAnchorPos(extendedPosition, animationDuration).SetEase(Ease.OutBack);
+        isExtended = true;
+    }
+
+    public bool IsExtended()
+    {
+        return isExtended;
     }
 
 

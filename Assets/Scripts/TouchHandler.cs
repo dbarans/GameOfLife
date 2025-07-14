@@ -20,18 +20,35 @@ public class TouchHandler : MonoBehaviour
     private float singleTouchTimer;
     private float singleTouchDelay = 0.1f;
     private Touch singleTouch;
-    
 
-    void Start()
+    public bool canAddCells = true;
+    public bool canRemoveCells = true;
+    public bool canPanCamera = true;
+    public bool canZoomCamera = true;
+
+    private int cellsAddedCount = 0;
+    private float currentZoomAmount = 0f;
+    private float currentPanAmount = 0f;
+
+    void Awake()
     {
         mainCamera = Camera.main;
-        mainCamera.nearClipPlane = 0.1f;
+        if (mainCamera == null)
+        {
+            Debug.LogError("Main Camera not found! Make sure your camera has the 'MainCamera' tag.");
+        }
+        else
+        {
+            mainCamera.nearClipPlane = 0.1f;
+        }
 
         if (tilemap == null)
-            Debug.LogError("Tilemap not assigned to CellClickHandler!");
+            Debug.LogError("Tilemap not assigned to TouchHandler!");
 
         if (cellManager == null)
-            Debug.LogError("CellManager not assigned to CellClickHandler!");
+            Debug.LogError("CellManager not assigned to TouchHandler!");
+
+        ResetInteractionCounts();
     }
 
     void Update()
@@ -41,6 +58,8 @@ public class TouchHandler : MonoBehaviour
             currentState = TouchState.Idle;
             return;
         }
+
+
         switch (currentState)
         {
             case TouchState.Idle:
@@ -83,7 +102,7 @@ public class TouchHandler : MonoBehaviour
                 {
                     currentState = TouchState.Idle;
                 }
-                else if (Input.touchCount != 1) 
+                else if (Input.touchCount != 1)
                 {
                     HandleTwoTouches();
                 }
@@ -93,6 +112,8 @@ public class TouchHandler : MonoBehaviour
 
     void HandleSingleTouch(Touch touch)
     {
+        if (!canAddCells && !canRemoveCells) return;
+
         if (touch.phase == TouchPhase.Began || touch.phase == TouchPhase.Moved)
         {
             Vector3Int cellPosition = GetCellFromTouch(touch.position);
@@ -100,12 +121,14 @@ public class TouchHandler : MonoBehaviour
             if (touch.phase == TouchPhase.Began)
                 firstClickState = cellManager.IsCellAlive(cellPosition);
 
-            HandleTouch(cellPosition);
+            HandleCellAction(cellPosition, canAddCells, canRemoveCells);
         }
     }
 
     void HandleTwoTouches()
     {
+        if (!canPanCamera && !canZoomCamera) return;
+
         Touch touchZero = Input.GetTouch(0);
         Touch touchOne = Input.GetTouch(1);
 
@@ -123,32 +146,50 @@ public class TouchHandler : MonoBehaviour
             Vector2 currentTouchPos = (touchZero.position + touchOne.position) / 2f;
             Vector2 previousTouchPos = prevTouchDelta;
 
-            float prevTouchDistance = Vector2.Distance(touchZeroPrevPos, touchOnePrevPos);
-            float currentTouchDistance = Vector2.Distance(touchZero.position, touchOne.position);
-            float distanceDelta = currentTouchDistance - prevTouchDistance;
+            if (canZoomCamera)
+            {
+                float prevTouchDistance = Vector2.Distance(touchZeroPrevPos, touchOnePrevPos);
+                float currentTouchDistance = Vector2.Distance(touchZero.position, touchOne.position);
+                float distanceDelta = currentTouchDistance - prevTouchDistance;
 
-            mainCamera.orthographicSize -= distanceDelta * zoomSpeed * mainCamera.orthographicSize * Time.deltaTime;
-            mainCamera.orthographicSize = Mathf.Clamp(mainCamera.orthographicSize, minZoom, maxZoom);
+                float originalSize = mainCamera.orthographicSize;
+                mainCamera.orthographicSize -= distanceDelta * zoomSpeed * mainCamera.orthographicSize * Time.deltaTime;
+                mainCamera.orthographicSize = Mathf.Clamp(mainCamera.orthographicSize, minZoom, maxZoom);
 
-            Vector3 currentWorldPos = mainCamera.ScreenToWorldPoint(currentTouchPos);
-            Vector3 onePixelRightWorldPos = mainCamera.ScreenToWorldPoint(currentTouchPos + Vector2.right);
-            float worldUnitsPerPixel = (onePixelRightWorldPos - currentWorldPos).magnitude;
-            Vector2 pixelDelta = currentTouchPos - previousTouchPos;
-            Vector3 move = new Vector3(pixelDelta.x, pixelDelta.y, 0) * worldUnitsPerPixel;
-            mainCamera.transform.position -= move;
+                currentZoomAmount += Mathf.Abs(mainCamera.orthographicSize - originalSize);
+            }
+
+            if (canPanCamera)
+            {
+                Vector3 currentWorldPos = mainCamera.ScreenToWorldPoint(currentTouchPos);
+                Vector3 onePixelRightWorldPos = mainCamera.ScreenToWorldPoint(currentTouchPos + Vector2.right);
+                float worldUnitsPerPixel = (onePixelRightWorldPos - currentWorldPos).magnitude;
+                Vector2 pixelDelta = currentTouchPos - previousTouchPos;
+                Vector3 move = new Vector3(pixelDelta.x, pixelDelta.y, 0) * worldUnitsPerPixel;
+
+                mainCamera.transform.position -= move;
+
+                currentPanAmount += move.magnitude;
+            }
 
             prevTouchDelta = currentTouchPos;
         }
     }
 
-    void HandleTouch(Vector3Int cellPosition)
+    void HandleCellAction(Vector3Int cellPosition, bool allowAdd, bool allowRemove)
     {
         if (gameController.isRunning) return;
 
-        bool isAlive = cellManager.IsCellAlive(cellPosition);
-        if (firstClickState == isAlive)
+        bool isCurrentCellAlive = cellManager.IsCellAlive(cellPosition);
+
+        if (allowAdd && !isCurrentCellAlive && firstClickState == false)
         {
-            cellManager.SetCellState(cellPosition, !isAlive);
+            cellManager.SetCellState(cellPosition, true);
+            cellsAddedCount++;
+        }
+        else if (allowRemove && isCurrentCellAlive && firstClickState == true)
+        {
+            cellManager.SetCellState(cellPosition, false);
         }
     }
 
@@ -158,14 +199,61 @@ public class TouchHandler : MonoBehaviour
         worldPosition.z = 0;
         return tilemap.WorldToCell(worldPosition);
     }
+
     private bool IsPointerOverUI(int fingerId)
     {
         if (EventSystem.current == null) return false;
-
-        if (Input.touchCount > 0)
-            return EventSystem.current.IsPointerOverGameObject(fingerId);
-        else
-            return EventSystem.current.IsPointerOverGameObject();
+        return EventSystem.current.IsPointerOverGameObject(fingerId);
+    }
+    #region Tutorial Methods
+    public void SetCanAddCells(bool enable)
+    {
+        canAddCells = enable;
     }
 
+    public void SetCanRemoveCells(bool enable)
+    {
+        canRemoveCells = enable;
+    }
+
+    public void SetCanPanCamera(bool enable)
+    {
+        canPanCamera = enable;
+    }
+
+    public void SetCanZoomCamera(bool enable)
+    {
+        canZoomCamera = enable;
+    }
+
+    public void DisableAllInteractions()
+    {
+        canAddCells = false;
+        canRemoveCells = false;
+        canPanCamera = false;
+        canZoomCamera = false;
+    }
+
+    public int GetCellsAddedCount()
+    {
+        return cellsAddedCount;
+    }
+
+    public float GetCurrentZoomAmount()
+    {
+        return currentZoomAmount;
+    }
+
+    public float GetCurrentPanAmount()
+    {
+        return currentPanAmount;
+    }
+
+    public void ResetInteractionCounts()
+    {
+        cellsAddedCount = 0;
+        currentZoomAmount = 0f;
+        currentPanAmount = 0f;
+    }
+    #endregion
 }
