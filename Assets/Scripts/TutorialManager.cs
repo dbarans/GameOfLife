@@ -382,11 +382,11 @@ public class TutorialManager : MonoBehaviour
                     touchHandler.SetCanPanCamera(true);
                     touchHandler.SetCanZoomCamera(true);
                 });
-                startButton.onClick.AddListener(() => { isStartButtonClicked = true; });
+                startButton.onClick.AddListener(() => { if (!cellGrid.IsLivingCellsSetEmpty()) { isStartButtonClicked = true; } });
                 statePhase = StatePhase.Update;
                 break;
             case (StatePhase.Update):
-                if (!cellGrid.IsLivingCellsSetEmpty() && isStartButtonClicked)
+                if (isStartButtonClicked)
                 { 
                     statePhase = StatePhase.End;
                     HideMessage(() =>
