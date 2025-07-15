@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 using System.Threading;
+using TMPro;
 
 public class GameController : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class GameController : MonoBehaviour
     [SerializeField] private CellGrid CellGrid;
     [SerializeField] private Camera mainCamera;
     private Color cameraBackgroundColor;
+    [SerializeField] private StatsDisplay gameStatsDisplay;
+    
 
     private static readonly object nextGenLock = new object();
 
@@ -45,9 +48,11 @@ public class GameController : MonoBehaviour
     }
     private void UpdateGeneration()
     {
+        gameStatsDisplay.UpdateGenerationsPerSecondDisplay(); //Debug: display for generations per second
         timeSinceLastGen += Time.deltaTime;
         if (timeSinceLastGen >= 1f / genPerSec && isNextGenCalculated == 1)
         {
+            gameStatsDisplay.IncrementGenerationCount(); //Debug: increment generation count for display
             timeSinceLastGen = 0f;
             Interlocked.Exchange(ref isNextGenCalculated, 1);
             CellGrid.SwapGenerations();
@@ -134,6 +139,11 @@ public class GameController : MonoBehaviour
         CellGrid.ClearGrid();
         Interlocked.Exchange(ref isNextGenCalculated, 0);
     }
+    public void ChangeSpeed(int speed)
+    {
+        genPerSec = speed;
+    }
+
     
 
  
