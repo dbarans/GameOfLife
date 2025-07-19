@@ -62,7 +62,7 @@ public class TutorialManager : MonoBehaviour
         End
     }
 
-    private TutorialState tutorialState = TutorialState.Start;
+    private TutorialState tutorialState = TutorialState.StartButton;
     private StatePhase statePhase = StatePhase.Start;
 
     private const int minCellsToAdd = 10;

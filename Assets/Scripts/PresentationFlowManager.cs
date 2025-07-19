@@ -6,9 +6,6 @@ using System;
 public class PresentationFlowManager : MonoBehaviour
 {
     [SerializeField] private List<GameObject> sequenceElementObjects;
-
-    [SerializeField] private float animationSpeedUpFactor = 2.0f;
-
     private Sequence mainFlowSequence;
     private Sequence activeStepSequence;
     private bool presentationFinished = false;
