@@ -4,16 +4,21 @@ using UnityEngine;
 using System.Threading.Tasks;
 using System.Threading;
 using TMPro;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
     [SerializeField] private float genPerSec = 5f;
+    [SerializeField] private GameObject buttonPanel;
+    private Image buttonPanelImage;
     private bool _isRunning = false;
     private float timeSinceLastGen = 0;
     private int isNextGenCalculated = 0;
     [SerializeField] private CellGrid CellGrid;
     [SerializeField] private Camera mainCamera;
-    private Color cameraBackgroundColor;
+    private Color pauseBackgroundColor;
+    private Color runingBackgroundColor = Color.black;
+
     [SerializeField] private StatsDisplay gameStatsDisplay;
     
 
@@ -26,7 +31,8 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
-        cameraBackgroundColor = mainCamera.backgroundColor;
+        pauseBackgroundColor = mainCamera.backgroundColor;
+        buttonPanelImage = buttonPanel.GetComponent<Image>();   
     }
 
     private void Update()
@@ -123,18 +129,21 @@ public class GameController : MonoBehaviour
         if (CellGrid.IsLivingCellsSetEmpty()) return;
 
         GenerateNextGeneration();
-        mainCamera.backgroundColor = Color.black;
+        mainCamera.backgroundColor = runingBackgroundColor;
+        buttonPanelImage.color = runingBackgroundColor;
         _isRunning = true;
 
     }
     public void PauseGame()
     {
-        mainCamera.backgroundColor = cameraBackgroundColor;
+        mainCamera.backgroundColor = pauseBackgroundColor;
+        buttonPanelImage.color = pauseBackgroundColor;
         _isRunning = false;
     }
     public void ResetGame()
     {
-        mainCamera.backgroundColor = cameraBackgroundColor;
+        mainCamera.backgroundColor = pauseBackgroundColor;
+        buttonPanelImage.color = pauseBackgroundColor;
         _isRunning = false;
         CellGrid.ClearGrid();
         Interlocked.Exchange(ref isNextGenCalculated, 0);

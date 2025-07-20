@@ -11,6 +11,10 @@ public class CellGrid : MonoBehaviour
 
     private static readonly object gridLock = new object();
 
+    private void Start()
+    {
+        CreateRandomGeneration();
+    }
 
 
     public bool HasStateChanged()
