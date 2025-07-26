@@ -60,7 +60,7 @@ public class GameController : MonoBehaviour
         {
             gameStatsDisplay.IncrementGenerationCount(); //Debug: increment generation count for display
             timeSinceLastGen = 0f;
-            Interlocked.Exchange(ref isNextGenCalculated, 1);
+            Interlocked.Exchange(ref isNextGenCalculated, 0);
             CellGrid.SwapGenerations();
             Task.Run(() => GenerateNextGeneration()); 
         }
