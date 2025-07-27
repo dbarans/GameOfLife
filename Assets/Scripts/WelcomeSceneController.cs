@@ -71,7 +71,7 @@ public class WelcomeSceneController : MonoBehaviour
                 Tween messageTween = TextAnimator.AnimateTextByCharactersPerSecond(questionBox, charactersPerSecond);
                 messageTween.OnComplete(() =>
                 {
-                    currentState = WelcomeSceneState.ShowYesAnswer;
+                    currentState = WelcomeSceneState.ShowNoAnswer;
                     currentPhase = StatePhase.Start;
                 });
                 currentPhase = StatePhase.Update;
@@ -87,7 +87,7 @@ public class WelcomeSceneController : MonoBehaviour
                 Tween yesTween = TextAnimator.AnimateTextByCharactersPerSecond(yesAnswerText, charactersPerSecond);
                 yesTween.OnComplete(() =>
                 {
-                    currentState = WelcomeSceneState.ShowNoAnswer;
+                    currentState = WelcomeSceneState.EnableButtons;
                     currentPhase = StatePhase.Start;
                 });
                 currentPhase = StatePhase.Update;
@@ -103,7 +103,7 @@ public class WelcomeSceneController : MonoBehaviour
                 Tween noTween = TextAnimator.AnimateTextByCharactersPerSecond(noAnswerText, charactersPerSecond);
                 noTween.OnComplete(() =>
                 {
-                    currentState = WelcomeSceneState.EnableButtons;
+                    currentState = WelcomeSceneState.ShowYesAnswer;
                     currentPhase = StatePhase.Start;
                 });
                 currentPhase = StatePhase.Update;

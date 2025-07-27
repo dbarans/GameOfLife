@@ -21,10 +21,10 @@ public class TouchHandler : MonoBehaviour
     private float singleTouchDelay = 0.1f;
     private Touch singleTouch;
 
-    public bool canAddCells = true;
-    public bool canRemoveCells = true;
-    public bool canPanCamera = true;
-    public bool canZoomCamera = true;
+    private bool canAddCells = true;
+    private bool canRemoveCells = true;
+    private bool canPanCamera = true;
+    private bool canZoomCamera = true;
 
     private int cellsAddedCount = 0;
     private float currentZoomAmount = 0f;

@@ -264,7 +264,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: No, I need a tutorial.
+  m_text: No, show me the rules
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ecefd4685c5b7644eb053d82e345910a, type: 2}
   m_sharedMaterial: {fileID: 7924311117323272725, guid: ecefd4685c5b7644eb053d82e345910a, type: 2}
@@ -357,7 +357,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -20}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1196426386
@@ -517,7 +517,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Yes, I know the rules.
+  m_text: Yes, just show controls
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ecefd4685c5b7644eb053d82e345910a, type: 2}
   m_sharedMaterial: {fileID: 7924311117323272725, guid: ecefd4685c5b7644eb053d82e345910a, type: 2}
@@ -622,8 +622,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -92.9}
-  m_SizeDelta: {x: 391.7, y: 57.1}
+  m_AnchoredPosition: {x: 0, y: -26}
+  m_SizeDelta: {x: 391.7, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1292644492
 MonoBehaviour:
@@ -753,7 +753,7 @@ MonoBehaviour:
   noAnswerButton: {fileID: 1292644494}
   yesAnswerText: {fileID: 1216587657}
   noAnswerText: {fileID: 1055833643}
-  charactersPerSecond: 30
+  charactersPerSecond: 40
 --- !u!4 &1882780053
 Transform:
   m_ObjectHideFlags: 0
@@ -939,8 +939,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 391.7, y: 57.1}
+  m_AnchoredPosition: {x: 0, y: -114}
+  m_SizeDelta: {x: 420.8, y: 50.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2056249891
 MonoBehaviour:

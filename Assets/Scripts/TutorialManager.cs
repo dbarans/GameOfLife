@@ -24,7 +24,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private Button resetButton;
 
 
-    private const string startMessage = "Welcome to the Game of Life!\nTap anywhere to begin tutorial.";
+    private const string startMessage = "Let's learn the controls!\nTap anywhere to start.";
     private const string addCellsMessage = "Tap or drag on the screen to create at least {0} living cells.\n{1}/{0}";
     private const string removeCellsMessage = "Remove all cells by tapping or dragging over them.";
     private const string panCameraMessage = "Pan the camera by dragging with two fingers.";
@@ -71,6 +71,16 @@ public class TutorialManager : MonoBehaviour
     private const int minCameraPanDistance = 15;
     private const float minCameraZoom = 20f;
 
+    private void Start()
+    {
+        if (PlayerPrefsManager.HasCompletedTutorial)
+        {
+            Debug.Log("Tutorial already completed. Skipping tutorial.");
+            buttonPanelSlider.SlideIn();
+            gameObject.SetActive(false);
+            return;
+        }
+    }
     private void Update()
     {
         switch (tutorialState)
@@ -149,6 +159,10 @@ public class TutorialManager : MonoBehaviour
                 speedButton.interactable = false;
                 resetButton.interactable = false;
                 statePhase = StatePhase.Update;
+                touchHandler.SetCanAddCells(false);
+                touchHandler.SetCanRemoveCells(false);
+                touchHandler.SetCanPanCamera(false);
+                touchHandler.SetCanZoomCamera(false);
                 break;
             case StatePhase.Update:
                 if (startMessageDone && Input.GetMouseButtonDown(0))
@@ -422,6 +436,8 @@ public class TutorialManager : MonoBehaviour
                 speedButton.interactable = true;
                 resetButton.interactable = true;
                 statePhase = StatePhase.End;
+                PlayerPrefsManager.HasCompletedTutorial = true;
+
                 break;
         }
     }
