@@ -12,6 +12,9 @@ public class WelcomeSceneController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI noAnswerText;
     [SerializeField] private float charactersPerSecond = 30f;
 
+    [SerializeField] private const string GAME_SCENE_NAME = "Game";
+    [SerializeField] private const string RULES_SCENE_NAME = "Rules";
+
 
     public enum WelcomeSceneState
     {
@@ -119,5 +122,15 @@ public class WelcomeSceneController : MonoBehaviour
                 break;
         }
     }
+
+    public void OnYesButtonClicked()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(GAME_SCENE_NAME);
+    }
+    public void OnNoButtonClicked()
+    {
+        UnityEngine.SceneManagement.SceneManager.LoadScene(RULES_SCENE_NAME);
+    }
+
 
 }

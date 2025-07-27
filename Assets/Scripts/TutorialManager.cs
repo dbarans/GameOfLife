@@ -20,6 +20,8 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private Button buttonsPanelButtonOFF;
     [SerializeField] private GameObject rulesContainer;
     [SerializeField] private Button startButton;
+    [SerializeField] private Button speedButton;
+    [SerializeField] private Button resetButton;
 
 
     private const string startMessage = "Welcome to the Game of Life!\nTap anywhere to begin tutorial.";
@@ -62,7 +64,7 @@ public class TutorialManager : MonoBehaviour
         End
     }
 
-    private TutorialState tutorialState = TutorialState.StartButton;
+    private TutorialState tutorialState = TutorialState.Start;
     private StatePhase statePhase = StatePhase.Start;
 
     private const int minCellsToAdd = 10;
@@ -144,6 +146,8 @@ public class TutorialManager : MonoBehaviour
             case StatePhase.Start:
                 ShowMessage(startMessage, () => { startMessageDone = true; });
                 buttonsPanelButtonON.gameObject.SetActive(false);
+                speedButton.interactable = false;
+                resetButton.interactable = false;
                 statePhase = StatePhase.Update;
                 break;
             case StatePhase.Update:
@@ -331,7 +335,7 @@ public class TutorialManager : MonoBehaviour
                     statePhase = StatePhase.End;
                     HideMessage(() =>
                     {
-                        tutorialState = TutorialState.Rules;
+                        tutorialState = TutorialState.StartButton;
                         statePhase = StatePhase.Start;
                     });
                 }
@@ -359,7 +363,6 @@ public class TutorialManager : MonoBehaviour
                 {
                     statePhase = StatePhase.End;
                     rulesContainer.SetActive(false);
-                    buttonsPanelButtonOFF.gameObject.SetActive(true);
                     HideMessage(() =>
                     {
                         tutorialState = TutorialState.StartButton;
@@ -415,6 +418,9 @@ public class TutorialManager : MonoBehaviour
         {
             case StatePhase.Start:
                 ShowMessage(tutorialEndMessage, () => { StartCoroutine(DelayHideMessage(1f, () => { })); });
+                buttonsPanelButtonOFF.gameObject.SetActive(true);
+                speedButton.interactable = true;
+                resetButton.interactable = true;
                 statePhase = StatePhase.End;
                 break;
         }

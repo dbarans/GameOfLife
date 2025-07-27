@@ -13,7 +13,7 @@ public class CellGrid : MonoBehaviour
 
     private void Start()
     {
-        CreateRandomGeneration();
+        //CreateRandomGeneration();
     }
 
 
