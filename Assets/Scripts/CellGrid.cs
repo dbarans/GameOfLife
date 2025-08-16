@@ -7,13 +7,14 @@ public class CellGrid : MonoBehaviour
 {
     private HashSet<Vector3Int> livingCells = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> nextGeneration = new HashSet<Vector3Int>();
+    private HashSet<Vector3Int> savedCells = new HashSet<Vector3Int>();
     private bool stateChanged = false;
 
     private static readonly object gridLock = new object();
 
     private void Start()
     {
-        //CreateRandomGeneration();
+        CreateRandomGeneration();
     }
 
 
@@ -94,5 +95,19 @@ public class CellGrid : MonoBehaviour
     {
         return livingCells.Count == 0;
     }    
-
+    public void SaveGame()
+    {
+        lock (gridLock)
+        {
+            savedCells = new HashSet<Vector3Int>(livingCells);
+        }
+    }
+    public void LoadGame()
+    {
+        lock (gridLock)
+        {
+            livingCells = new HashSet<Vector3Int>(savedCells);
+            stateChanged = true;
+        }
+    }
 }

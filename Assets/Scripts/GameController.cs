@@ -148,6 +148,23 @@ public class GameController : MonoBehaviour
         CellGrid.ClearGrid();
         Interlocked.Exchange(ref isNextGenCalculated, 0);
     }
+
+    public void SaveGame()
+    {
+        Debug.Log("Saving game...");
+        if (_isRunning) return;
+        Debug.Log("Game saved successfully.");
+        Interlocked.Exchange(ref isNextGenCalculated, 0);
+        CellGrid.SaveGame();
+    }
+    public void LoadGame()
+    {
+        Debug.Log("Loading game...");
+        if (_isRunning) return;
+        Debug.Log("Game loaded successfully.");
+        Interlocked.Exchange(ref isNextGenCalculated, 0);
+        CellGrid.LoadGame();
+    }
     public void ChangeSpeed(int speed)
     {
         genPerSec = speed;

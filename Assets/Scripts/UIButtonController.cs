@@ -10,6 +10,8 @@ public class UIButtonController : MonoBehaviour
     [SerializeField] private GameObject menuPanel;
     [SerializeField] private Button startButton;
     [SerializeField] private Button resetButton;
+    [SerializeField] private Button saveButton;
+    [SerializeField] private Button loadButton;
     [SerializeField] private Button speedButton;
     [SerializeField] private Slider speedSlider;
     [SerializeField] private Button speedSliderBackButton;
@@ -25,6 +27,8 @@ public class UIButtonController : MonoBehaviour
         buttons.Add(startButton);
         buttons.Add(resetButton);
         buttons.Add(speedButton);
+        buttons.Add(saveButton);
+        buttons.Add(loadButton);
 
         originalButtonScale = startButton.transform.localScale;
     }
@@ -57,6 +61,16 @@ public class UIButtonController : MonoBehaviour
     {
         gameController.ResetGame();
         PauseGame();
+    }
+
+    public void SaveGame()
+    {
+        gameController.SaveGame();
+    }
+
+    public void LoadGame()
+    {
+        gameController.LoadGame();
     }
 
     public void ShowButtons()
