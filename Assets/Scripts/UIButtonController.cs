@@ -1,40 +1,55 @@
 using DG.Tweening;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
 public class UIButtonController : MonoBehaviour
 {
+    [Header("References")]
     [SerializeField] private GameController gameController;
     [SerializeField] private GameObject menuPanel;
+
+    [Header("Buttons")]
     [SerializeField] private Button startButton;
     [SerializeField] private Button resetButton;
     [SerializeField] private Button saveButton;
     [SerializeField] private Button loadButton;
     [SerializeField] private Button speedButton;
+
+    [Header("Slider")]
     [SerializeField] private Slider speedSlider;
     [SerializeField] private Button speedSliderBackButton;
 
-    private List<Button> buttons = new List<Button>();
-    private Vector3 originalButtonScale;
-
+    [Header("Sprites")]
     [SerializeField] private Sprite startSprite;
     [SerializeField] private Sprite pauseSprite;
 
+    private Vector3 originalButtonScale;
+    private Dictionary<ButtonType, Button> buttons;
+
+    public event Action OnStartButtonClicked;
+
+    public enum ButtonType { Start, Save, Load, Reset, Speed }
+
     private void Awake()
     {
-        buttons.Add(startButton);
-        buttons.Add(resetButton);
-        buttons.Add(speedButton);
-        buttons.Add(saveButton);
-        buttons.Add(loadButton);
+        buttons = new Dictionary<ButtonType, Button>
+        {
+            { ButtonType.Start, startButton },
+            { ButtonType.Save, saveButton },
+            { ButtonType.Load, loadButton },
+            { ButtonType.Reset, resetButton },
+            { ButtonType.Speed, speedButton }
+        };
 
         originalButtonScale = startButton.transform.localScale;
     }
 
+    #region Game Control Buttons
     public void StartGame()
     {
+        OnStartButtonClicked?.Invoke();
         gameController.RunGame();
         if (gameController.isRunning)
         {
@@ -50,11 +65,6 @@ public class UIButtonController : MonoBehaviour
         startButton.image.sprite = startSprite;
         startButton.onClick.RemoveAllListeners();
         startButton.onClick.AddListener(StartGame);
-    }
-
-    public void ChangeSpeed()
-    {
-        gameController.ChangeSpeed((int)speedSlider.value);
     }
 
     public void ResetGame()
@@ -73,11 +83,59 @@ public class UIButtonController : MonoBehaviour
         gameController.LoadGame();
     }
 
+    public void ChangeSpeed()
+    {
+        gameController.ChangeSpeed((int)speedSlider.value);
+    }
+    #endregion
+
+    #region Button State Control
+    public void SetAllButtonsInteractable(bool interactable)
+    {
+        foreach (Button button in buttons.Values)
+            button.interactable = interactable;
+    }
+
+    public void SetButtonInteractable(ButtonType type, bool interactable)
+    {
+        if (buttons.TryGetValue(type, out var button))
+            button.interactable = interactable;
+    }
+
+    public void UpdateSaveLoadButtons(bool isGameRunning)
+    {
+        if (isGameRunning)
+        {
+            SetButtonInteractable(ButtonType.Save, false);
+            SetButtonInteractable(ButtonType.Load, false);
+        }
+        else
+        {
+            SetButtonInteractable(ButtonType.Save, true);
+            SetButtonInteractable(ButtonType.Load, true);
+        }
+    }
+    #endregion
+
+    #region Button & Slider UI Animations
     public void ShowButtons()
     {
-        foreach (Button button in buttons)
+        int completedAnimationsCount = 0;
+        int totalButtons = buttons.Count;
+
+        if (totalButtons == 0) return;
+
+        foreach (Button button in buttons.Values)
         {
-            ShowElementAnimated(button.gameObject);
+            ShowElementAnimated(button.gameObject, () =>
+            {
+                button.interactable = true;
+                completedAnimationsCount++;
+                if (completedAnimationsCount == totalButtons)
+                {
+                    UpdateSaveLoadButtons(gameController.isRunning);
+                }
+            });
         }
     }
 
@@ -92,7 +150,7 @@ public class UIButtonController : MonoBehaviour
             return;
         }
 
-        foreach (Button button in buttons)
+        foreach (Button button in buttons.Values)
         {
             HideGameObjectAnimated(button.gameObject, () =>
             {
@@ -109,37 +167,40 @@ public class UIButtonController : MonoBehaviour
     {
         HideButtons(() =>
         {
-            ShowElementAnimated(speedSlider.gameObject);
-            ShowElementAnimated(speedSliderBackButton.gameObject);
+            ShowElementAnimated(speedSlider.gameObject, () => speedSlider.interactable = true);
+            ShowElementAnimated(speedSliderBackButton.gameObject, () => speedSliderBackButton.interactable = true);
         });
     }
 
     public void HideSpeedSlider()
     {
         List<GameObject> elementsToHide = new List<GameObject>
-    {
-        speedSlider.gameObject,
-        speedSliderBackButton.gameObject
-    };
+        {
+            speedSlider.gameObject,
+            speedSliderBackButton.gameObject
+        };
 
         int completedAnimationsCount = 0;
-        int totalElementsToHide = elementsToHide.Count; 
+        int totalElementsToHide = elementsToHide.Count;
 
         if (totalElementsToHide == 0)
         {
-            ShowButtons(); 
+            ShowButtons();
             return;
         }
 
         foreach (GameObject element in elementsToHide)
         {
+            if (element.TryGetComponent<Button>(out Button button))
+                button.interactable = false;
+            else if (element.TryGetComponent<Slider>(out Slider slider))
+                slider.interactable = false;
+
             HideGameObjectAnimated(element, () =>
             {
                 completedAnimationsCount++;
                 if (completedAnimationsCount == totalElementsToHide)
-                {
                     ShowButtons();
-                }
             });
         }
     }
@@ -149,16 +210,8 @@ public class UIButtonController : MonoBehaviour
         Sequence sequence = DOTween.Sequence();
         float duration = 0.15f;
 
-        if (targetObject.TryGetComponent<Button>(out Button button))
-        {
-            button.interactable = false;
-        }
-        else if (targetObject.TryGetComponent<Slider>(out Slider slider))
-        {
-            slider.interactable = false;
-        }
-
-        sequence.Append(targetObject.transform.DOLocalMove(targetObject.transform.parent.localPosition, duration)).SetEase(Ease.InOutSine);
+        sequence.Append(targetObject.transform.DOLocalMove(targetObject.transform.parent.localPosition, duration))
+            .SetEase(Ease.InOutSine);
         sequence.Join(targetObject.transform.DOScale(Vector3.zero, duration)).SetEase(Ease.InOutSine);
         sequence.OnComplete(() =>
         {
@@ -167,7 +220,7 @@ public class UIButtonController : MonoBehaviour
         });
     }
 
-    public void ShowElementAnimated(GameObject targetObject)
+    public void ShowElementAnimated(GameObject targetObject, Action onComplete = null)
     {
         targetObject.SetActive(true);
         targetObject.transform.localScale = Vector3.zero;
@@ -176,14 +229,8 @@ public class UIButtonController : MonoBehaviour
             .SetEase(Ease.InSine)
             .OnComplete(() =>
             {
-                if (targetObject.TryGetComponent<Button>(out Button button))
-                {
-                    button.interactable = true;
-                }
-                else if (targetObject.TryGetComponent<Slider>(out Slider slider))
-                {
-                    slider.interactable = true;
-                }
+                onComplete?.Invoke();
             });
     }
+    #endregion
 }

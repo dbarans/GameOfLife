@@ -1,46 +1,15 @@
 using DG.Tweening;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour
 {
-    [SerializeField] private TouchHandler touchHandler;
-    [SerializeField] private CellGrid cellGrid;
-    [SerializeField] private PresentationFlowManager rulesPresentationManager;
-    [SerializeField] private ButtonPanelSlider buttonPanelSlider;
-    [SerializeField] private TextMeshProUGUI messageBox;
-    [SerializeField] private CanvasGroup messageBoxCanvasGroup;
-    [SerializeField] private GameObject buttonsPanel;
-    [SerializeField] private Button buttonsPanelButtonON;
-    [SerializeField] private Button buttonsPanelButtonOFF;
-    [SerializeField] private GameObject rulesContainer;
-    [SerializeField] private Button startButton;
-    [SerializeField] private Button speedButton;
-    [SerializeField] private Button resetButton;
-
-
-    private const string startMessage = "Let's learn the controls!\nTap anywhere to start.";
-    private const string addCellsMessage = "Tap or drag on the screen to create at least {0} living cells.\n{1}/{0}";
-    private const string removeCellsMessage = "Remove all cells by tapping or dragging over them.";
-    private const string panCameraMessage = "Pan the camera by dragging with two fingers.";
-    private const string zoomCameraMessage = "Zoom the camera by pinching two fingers.";
-    private const string buttonsPanelMessage = "Tap the button at the bottom to open the panel.";
-    private const string pauseButtonMessage = "The Pause button stops the simulation. Click it to pause the evolution.";
-    private const string startButtonMessage = "First, add some cells. Then, tap Start to begin the simulation and watch them evolve.\n You can't add cells while it's running.\n ";
-    private const string tutorialEndMessage = "Tutorial completed.";
-    private const string restartButtonMessage = "The Restart button resets the simulation. Click it to start over with a fresh grid.";
-    private const string gamePurposeMessage1 = "It's a zero-player game with no set purpose...";
-    private const string gamePurposeMessage2 = "... much like life itself";
-
-    [SerializeField] private int charsPerSecond = 10;
-    private bool startMessageDone = false;
-    bool isStartButtonClicked = false;
-
+    // =================================================================================
+    // ENUMS
+    // =================================================================================
     public enum TutorialState
     {
         Start,
@@ -57,6 +26,7 @@ public class TutorialManager : MonoBehaviour
         RestartButton,
         End
     }
+
     public enum StatePhase
     {
         Start,
@@ -64,14 +34,57 @@ public class TutorialManager : MonoBehaviour
         End
     }
 
-    private TutorialState tutorialState = TutorialState.Start;
-    private StatePhase statePhase = StatePhase.Start;
+    // =================================================================================
+    // REFERENCES
+    // =================================================================================
+    [Header("References")]
+    [SerializeField] private TouchHandler touchHandler;
+    [SerializeField] private CellGrid cellGrid;
+    [SerializeField] private PresentationFlowManager rulesPresentationManager;
+    [SerializeField] private UIButtonController uiButtonController;
+    [SerializeField] private ButtonPanelSlider buttonPanelSlider;
+    [SerializeField] private TextMeshProUGUI messageBox;
+    [SerializeField] private CanvasGroup messageBoxCanvasGroup;
+    [SerializeField] private GameObject buttonsPanel;
+    [SerializeField] private Button buttonsPanelButtonON;
+    [SerializeField] private Button buttonsPanelButtonOFF;
+    [SerializeField] private GameObject rulesContainer;
 
+    // =================================================================================
+    // CONFIGURATION
+    // =================================================================================
+    [Header("Configuration")]
+    [SerializeField] private int charsPerSecond = 10;
     private const int minCellsToAdd = 10;
     private const int minCameraPanDistance = 15;
     private const float minCameraZoom = 20f;
 
-    private void Start()
+    // =================================================================================
+    // MESSAGES
+    // =================================================================================
+    private const string startMessage = "Let's learn the controls!\nTap anywhere to start.";
+    private const string addCellsMessage = "Tap or drag on the screen to create at least {0} living cells.\n{1}/{0}";
+    private const string removeCellsMessage = "Remove all cells by tapping or dragging over them.";
+    private const string panCameraMessage = "Pan the camera by dragging with two fingers.";
+    private const string zoomCameraMessage = "Zoom the camera by pinching two fingers.";
+    private const string buttonsPanelMessage = "Tap the button at the bottom to open the panel.";
+    private const string pauseButtonMessage = "The Pause button stops the simulation. Click it to pause the evolution.";
+    private const string startButtonMessage = "First, add some cells. Then, tap Start to begin the simulation and watch them evolve.\n You can't add cells while it's running.\n ";
+    private const string tutorialEndMessage = "Tutorial completed.";
+    private const string restartButtonMessage = "The Restart button resets the simulation. Click it to start over with a fresh grid.";
+    private const string gamePurposeMessage1 = "It's a zero-player game with no set purpose...";
+    private const string gamePurposeMessage2 = "... much like life itself";
+
+    // =================================================================================
+    // STATE
+    // =================================================================================
+    private bool startMessageDone = false;
+    private bool isStartButtonClicked = false;
+    private TutorialState tutorialState = TutorialState.Start;
+    private StatePhase statePhase = StatePhase.Start;
+
+
+private void Start()
     {
         if (PlayerPrefsManager.HasCompletedTutorial)
         {
@@ -156,8 +169,9 @@ public class TutorialManager : MonoBehaviour
             case StatePhase.Start:
                 ShowMessage(startMessage, () => { startMessageDone = true; });
                 buttonsPanelButtonON.gameObject.SetActive(false);
-                speedButton.interactable = false;
-                resetButton.interactable = false;
+                
+                uiButtonController.SetAllButtonsInteractable(false);
+                uiButtonController.SetButtonInteractable(UIButtonController.ButtonType.Start, true);
                 statePhase = StatePhase.Update;
                 touchHandler.SetCanAddCells(false);
                 touchHandler.SetCanRemoveCells(false);
@@ -319,10 +333,10 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                ShowMessage(gamePurposeMessage1, () => {});
+                ShowMessage(gamePurposeMessage1, () => { statePhase = StatePhase.End; });
                 statePhase = StatePhase.Update;
                 break;
-            case StatePhase.Update:
+            case StatePhase.End:
                 if (Input.GetMouseButtonDown(0))
                 {
                     statePhase = StatePhase.End;
@@ -340,10 +354,10 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                ShowMessage(gamePurposeMessage2, () => { });
+                ShowMessage(gamePurposeMessage2, () => { statePhase = StatePhase.End; });
                 statePhase = StatePhase.Update;
                 break;
-            case StatePhase.Update:
+            case StatePhase.End:
                 if (Input.GetMouseButtonDown(0))
                 {
                     statePhase = StatePhase.End;
@@ -399,7 +413,7 @@ public class TutorialManager : MonoBehaviour
                     touchHandler.SetCanPanCamera(true);
                     touchHandler.SetCanZoomCamera(true);
                 });
-                startButton.onClick.AddListener(() => { if (!cellGrid.IsLivingCellsSetEmpty()) { isStartButtonClicked = true; } });
+                uiButtonController.OnStartButtonClicked += OnStartButtonHandled;
                 statePhase = StatePhase.Update;
                 break;
             case (StatePhase.Update):
@@ -408,6 +422,7 @@ public class TutorialManager : MonoBehaviour
                     statePhase = StatePhase.End;
                     HideMessage(() =>
                     {
+                        uiButtonController.OnStartButtonClicked -= OnStartButtonHandled;
                         tutorialState = TutorialState.End;
                         statePhase = StatePhase.Start;
                     });
@@ -433,8 +448,9 @@ public class TutorialManager : MonoBehaviour
             case StatePhase.Start:
                 ShowMessage(tutorialEndMessage, () => { StartCoroutine(DelayHideMessage(1f, () => { })); });
                 buttonsPanelButtonOFF.gameObject.SetActive(true);
-                speedButton.interactable = true;
-                resetButton.interactable = true;
+                uiButtonController.SetAllButtonsInteractable(true);
+                uiButtonController.SetButtonInteractable(UIButtonController.ButtonType.Save, false);
+                uiButtonController.SetButtonInteractable(UIButtonController.ButtonType.Load, false);
                 statePhase = StatePhase.End;
                 PlayerPrefsManager.HasCompletedTutorial = true;
 
@@ -446,5 +462,12 @@ public class TutorialManager : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         HideMessage(onComplete);
+    }
+    private void OnStartButtonHandled()
+    {
+        if (!cellGrid.IsLivingCellsSetEmpty())
+        {
+            isStartButtonClicked = true;
+        }
     }
 }

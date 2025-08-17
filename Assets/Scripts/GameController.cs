@@ -15,6 +15,7 @@ public class GameController : MonoBehaviour
     private float timeSinceLastGen = 0;
     private int isNextGenCalculated = 0;
     [SerializeField] private CellGrid CellGrid;
+    [SerializeField] private UIButtonController uiButtonController;
     [SerializeField] private Camera mainCamera;
     private Color pauseBackgroundColor;
     private Color runingBackgroundColor = Color.black;
@@ -132,6 +133,7 @@ public class GameController : MonoBehaviour
         mainCamera.backgroundColor = runingBackgroundColor;
         buttonPanelImage.color = runingBackgroundColor;
         _isRunning = true;
+        uiButtonController.UpdateSaveLoadButtons(isRunning);
 
     }
     public void PauseGame()
@@ -139,6 +141,7 @@ public class GameController : MonoBehaviour
         mainCamera.backgroundColor = pauseBackgroundColor;
         buttonPanelImage.color = pauseBackgroundColor;
         _isRunning = false;
+        uiButtonController.UpdateSaveLoadButtons(isRunning);
     }
     public void ResetGame()
     {
