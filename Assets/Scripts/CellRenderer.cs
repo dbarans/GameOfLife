@@ -9,7 +9,7 @@ public class CellRenderer : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private Tile cellTile;
-    [SerializeField] private CellGrid cellManager;
+    [SerializeField] private CellManager cellManager;
     [SerializeField] private Camera mainCamera;
     private Vector2 cellSize;
     private int tilesWide;
@@ -27,6 +27,7 @@ public class CellRenderer : MonoBehaviour
 
 
     private float lastOrthographicSize; 
+
 
     private void Start()
     {
@@ -130,6 +131,7 @@ public class CellRenderer : MonoBehaviour
             UpdateTilemapBounds();
         }
     }
+
    
 
 

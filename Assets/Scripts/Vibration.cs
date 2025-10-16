@@ -57,7 +57,7 @@ namespace Effects
             }
             else
             {
-                VibrateLegacy(durationMs);
+                //VibrateLegacy(durationMs);
             }
         }
 

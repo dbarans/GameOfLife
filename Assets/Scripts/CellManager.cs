@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class CellGrid : MonoBehaviour
+public class CellManager : MonoBehaviour
 {
     private HashSet<Vector3Int> livingCells = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> nextGeneration = new HashSet<Vector3Int>();
@@ -14,7 +14,7 @@ public class CellGrid : MonoBehaviour
 
     private void Start()
     {
-        //CreateRandomGeneration();
+        //CreateTutorialGeneration();
     }
 
 
@@ -76,6 +76,21 @@ public class CellGrid : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 if (UnityEngine.Random.value > 0.5f)
+                {
+                    livingCells.Add(new Vector3Int(x, y, 0));
+                }
+            }
+        }
+    }
+    public void CreateTutorialGeneration()
+    {
+        int width = 1;
+        int height = 1;
+        for (int x = -2; x < width+1; x++)
+        {
+            for (int y = -2; y < height+1; y++)
+            {
+                if (UnityEngine.Random.value > 0.2f)
                 {
                     livingCells.Add(new Vector3Int(x, y, 0));
                 }
