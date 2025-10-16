@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Tilemaps;
@@ -5,11 +6,12 @@ using UnityEngine.Tilemaps;
 public class TouchHandler : MonoBehaviour
 {
     [SerializeField] private Tilemap tilemap;
-    [SerializeField] private CellGrid cellManager;
+    [SerializeField] private CellManager cellManager;
     [SerializeField] private GameController gameController;
-    [SerializeField] private float zoomSpeed;
-    [SerializeField] private float minZoom;
-    [SerializeField] private float maxZoom;
+    [SerializeField] private float zoomSpeed = 0.1f;
+    [SerializeField] private float minZoom = 5f;
+    [SerializeField] private float maxZoom = 500f;
+    private VibrationManager vibrationManager;
 
     private Camera mainCamera;
     private bool firstClickState;
@@ -30,7 +32,15 @@ public class TouchHandler : MonoBehaviour
     private float currentZoomAmount = 0f;
     private float currentPanAmount = 0f;
 
-    void Awake()
+    private bool _isTutorialOn = false;
+    public bool IsTutorialOn
+    {
+        get => _isTutorialOn;
+        set => _isTutorialOn = value;
+    }
+
+
+    private void Awake()
     {
         mainCamera = Camera.main;
         if (mainCamera == null)
@@ -49,9 +59,10 @@ public class TouchHandler : MonoBehaviour
             Debug.LogError("CellManager not assigned to TouchHandler!");
 
         ResetInteractionCounts();
+
     }
 
-    void Update()
+    private void Update()
     {
         if (Input.touchCount > 0 && IsPointerOverUI(0))
         {
@@ -110,7 +121,7 @@ public class TouchHandler : MonoBehaviour
         }
     }
 
-    void HandleSingleTouch(Touch touch)
+    private void HandleSingleTouch(Touch touch)
     {
         if (!canAddCells && !canRemoveCells) return;
 
@@ -125,7 +136,7 @@ public class TouchHandler : MonoBehaviour
         }
     }
 
-    void HandleTwoTouches()
+    private void HandleTwoTouches()
     {
         if (!canPanCamera && !canZoomCamera) return;
 
@@ -176,7 +187,7 @@ public class TouchHandler : MonoBehaviour
         }
     }
 
-    void HandleCellAction(Vector3Int cellPosition, bool allowAdd, bool allowRemove)
+    private void HandleCellAction(Vector3Int cellPosition, bool allowAdd, bool allowRemove)
     {
         if (gameController.isRunning) return;
 
@@ -184,12 +195,15 @@ public class TouchHandler : MonoBehaviour
 
         if (allowAdd && !isCurrentCellAlive && firstClickState == false)
         {
+            if (_isTutorialOn && !CanAddCellHereDuringTutorial(cellPosition)) return;
+
             cellManager.SetCellState(cellPosition, true);
-            cellsAddedCount++;
+            vibrationManager.VibrateOnTouch();
         }
         else if (allowRemove && isCurrentCellAlive && firstClickState == true)
         {
             cellManager.SetCellState(cellPosition, false);
+            vibrationManager.VibrateOnTouch();
         }
     }
 
@@ -248,6 +262,10 @@ public class TouchHandler : MonoBehaviour
     {
         return currentPanAmount;
     }
+    public float GetCurrentOrthographicSize()
+    {
+        return mainCamera.orthographicSize;
+    }
 
     public void ResetInteractionCounts()
     {
@@ -256,4 +274,14 @@ public class TouchHandler : MonoBehaviour
         currentPanAmount = 0f;
     }
     #endregion
+
+    internal void SetVibrationManager(VibrationManager vibrationManager)
+    {
+        this.vibrationManager = vibrationManager;
+    }
+
+    private bool CanAddCellHereDuringTutorial(Vector3Int cellPosition)
+    {
+        return (cellPosition.x >= -2 && cellPosition.x <= 1 && cellPosition.y >= -2 && cellPosition.y <= 1);
+    }
 }

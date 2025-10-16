@@ -7,7 +7,6 @@ using UnityEngine.UI;
 public class UIButtonController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GameController gameController;
     [SerializeField] private GameObject menuPanel;
 
     [Header("Buttons")]
@@ -27,10 +26,17 @@ public class UIButtonController : MonoBehaviour
 
     private Vector3 originalButtonScale;
     private Dictionary<ButtonType, Button> buttons;
+    private bool isGameRunningState;
 
     public event Action OnStartButtonClicked;
+    public event Action OnPauseButtonClicked;
+    public event Action OnResetButtonClicked;
+    public event Action OnSaveButtonClicked;
+    public event Action OnLoadButtonClicked;
+    public event Action<int> OnSpeedChanged;
 
     public enum ButtonType { Start, Save, Load, Reset, Speed }
+    public enum StartButtonState { Start, Pause }
 
     private void Awake()
     {
@@ -44,49 +50,49 @@ public class UIButtonController : MonoBehaviour
         };
 
         originalButtonScale = startButton.transform.localScale;
+
+        startButton.onClick.AddListener(OnStartButtonClickHandler);
+        resetButton.onClick.AddListener(() => OnResetButtonClicked?.Invoke());
+        saveButton.onClick.AddListener(() => OnSaveButtonClicked?.Invoke());
+        loadButton.onClick.AddListener(() => OnLoadButtonClicked?.Invoke());
+        speedButton.onClick.AddListener(ShowSpeedSlider);
+        speedSliderBackButton.onClick.AddListener(HideSpeedSlider);
+        speedSlider.onValueChanged.AddListener(value => OnSpeedChanged?.Invoke((int)value));
+    }
+    public void UpdateRunState(bool isRunning)
+    {
+        isGameRunningState = isRunning;
     }
 
     #region Game Control Buttons
-    public void StartGame()
+
+    private void OnStartButtonClickHandler()
     {
         OnStartButtonClicked?.Invoke();
-        gameController.RunGame();
-        if (gameController.isRunning)
+    }
+
+    private void OnPauseButtonClickHandler()
+    {
+        OnPauseButtonClicked?.Invoke();
+    }
+    public void SetStartButtonState(StartButtonState state)
+    {
+        startButton.onClick.RemoveAllListeners();
+
+        switch (state)
         {
-            startButton.image.sprite = pauseSprite;
-            startButton.onClick.RemoveAllListeners();
-            startButton.onClick.AddListener(PauseGame);
+            case StartButtonState.Start:
+                startButton.image.sprite = startSprite;
+                startButton.onClick.AddListener(OnStartButtonClickHandler);
+                break;
+
+            case StartButtonState.Pause:
+                startButton.image.sprite = pauseSprite;
+                startButton.onClick.AddListener(OnPauseButtonClickHandler);
+                break;
         }
     }
-
-    public void PauseGame()
-    {
-        gameController.PauseGame();
-        startButton.image.sprite = startSprite;
-        startButton.onClick.RemoveAllListeners();
-        startButton.onClick.AddListener(StartGame);
-    }
-
-    public void ResetGame()
-    {
-        gameController.ResetGame();
-        PauseGame();
-    }
-
-    public void SaveGame()
-    {
-        gameController.SaveGame();
-    }
-
-    public void LoadGame()
-    {
-        gameController.LoadGame();
-    }
-
-    public void ChangeSpeed()
-    {
-        gameController.ChangeSpeed((int)speedSlider.value);
-    }
+    
     #endregion
 
     #region Button State Control
@@ -133,7 +139,7 @@ public class UIButtonController : MonoBehaviour
                 completedAnimationsCount++;
                 if (completedAnimationsCount == totalButtons)
                 {
-                    UpdateSaveLoadButtons(gameController.isRunning);
+                    UpdateSaveLoadButtons(isGameRunningState);
                 }
             });
         }

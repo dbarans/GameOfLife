@@ -1,11 +1,16 @@
-using UnityEngine;
 using TMPro;
 using DG.Tweening;
-using Effects;
+using UnityEngine;
+
 
 
 public static class TextAnimator
 {
+    private static IVibrationManager vibrationManager;
+    public static void Initialize(IVibrationManager manager)
+    {
+        vibrationManager = manager;
+    }
     public static Tween AnimateTextByCharactersPerSecond(TextMeshProUGUI textMesh, float charactersPerSecond)
     {
         if (textMesh == null || charactersPerSecond <= 0 || string.IsNullOrEmpty(textMesh.text))
@@ -27,9 +32,15 @@ public static class TextAnimator
         .OnUpdate(() => {
             if (textMesh.maxVisibleCharacters > lastVisibleCharacterCount)
             {
-                Vibration.Vibrate(30, 80);
-
-                lastVisibleCharacterCount = textMesh.maxVisibleCharacters;
+                if (vibrationManager != null)
+                {
+                    vibrationManager.VibrateOnTextLetter();
+                }
+                else
+                {
+                    Debug.LogWarning("TextAnimator: IVibrationManager is not initialized.");
+                }
+                    lastVisibleCharacterCount = textMesh.maxVisibleCharacters;
             }
         });
     }
