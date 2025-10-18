@@ -72,3 +72,12 @@ crashlytics-build.properties
 /[Aa]ssets/[Ss]treamingAssets/aa/*
 .vscode/
 .vsconfig
+
+# .NET Tools (RLE Parser)
+Tools/**/bin/
+Tools/**/obj/
+Tools/**/*.json
+Tools/**/*.dll
+Tools/**/*.exe
+Tools/**/*.pdb
+Tools/**/*.cache
