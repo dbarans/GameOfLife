@@ -11,7 +11,7 @@ using UnityEngine.Tilemaps;
 
 public class GameController : MonoBehaviour
 {
-      // === References ===
+    // === References ===
     [SerializeField] private GameObject buttonPanel;
     [SerializeField] private Tilemap tilemap;
     [SerializeField] private CellManager CellManager;
@@ -32,7 +32,6 @@ public class GameController : MonoBehaviour
     // === Configuration ===
     private float genPerSec = 1f;
     private bool vibrateEveryGen = true;
-    private bool isTutorial = false;
 
     // === Runtime state ===
     private bool _isRunning = false;
@@ -41,7 +40,7 @@ public class GameController : MonoBehaviour
 
     // === Debug ===
     private int generationsCount = 0;
-    
+
 
     // === Synchronization ===
     private static readonly object nextGenLock = new object();
@@ -73,6 +72,14 @@ public class GameController : MonoBehaviour
         uiButtonController.OnSaveButtonClicked += SaveGame;
         uiButtonController.OnLoadButtonClicked += LoadGame;
         uiButtonController.OnSpeedChanged += ChangeSpeed;
+        uiButtonController.OnPatternBookButtonClicked += OpenPatternBook;
+        uiButtonController.OnSlideInButtonClicked += SlideOutButtonsPanel;
+        
+        // Subscribe to pattern selection
+        if (uiButtonController.patternListManager != null)
+        {
+            uiButtonController.patternListManager.OnPatternSelected += LoadPattern;
+        }
 
         if (gameData.isTutorialOn)
         {
@@ -145,7 +152,6 @@ public class GameController : MonoBehaviour
 
     private void StartTutorial()
     {
-        isTutorial = true;
         vibrateEveryGen = true;
         tutorialManager.StartTutorial();
         touchHandler.IsTutorialOn = true;
@@ -154,7 +160,6 @@ public class GameController : MonoBehaviour
     }
     private void EndTutorial()
     {
-        isTutorial = false;
         touchHandler.IsTutorialOn = false;
         gameData.isTutorialOn = false;
     }
@@ -165,7 +170,7 @@ public class GameController : MonoBehaviour
         _isRunning = true;
         generationManager.GenerateNextGeneration();
         gameUIManager.SetRunningUI();
-        gameUIManager.UpdateSaveLoadButtons(isRunning);
+        gameUIManager.UpdateButtonsInteractivity(isRunning);
         uiButtonController.SetStartButtonState(UIButtonController.StartButtonState.Pause);
         uiButtonController.UpdateRunState(_isRunning);
 
@@ -175,7 +180,7 @@ public class GameController : MonoBehaviour
         _isRunning = false;
         gameUIManager.SetPauseUI();
         uiButtonController.SetStartButtonState(UIButtonController.StartButtonState.Start);
-        gameUIManager.UpdateSaveLoadButtons(isRunning);
+        gameUIManager.UpdateButtonsInteractivity(isRunning);
         uiButtonController.UpdateRunState(_isRunning);
     }
     public void ResetGame()
@@ -201,11 +206,35 @@ public class GameController : MonoBehaviour
     {
         genPerSec = speed;
     }
+    public void OpenPatternBook()
+    {
+        PauseGame();
+        buttonPanelSlider.SlideToPatternsBook();
+        uiButtonController.ShowPatternsBook();
+    }
+    public void SlideOutButtonsPanel()
+    {
+        buttonPanelSlider.SlideOut();
+        if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Extended) return;
+        uiButtonController.HidePatternsBook();
+    }
 
-
-
-
-
-
-
+    public void LoadPattern(PatternData patternData)
+    {
+        PauseGame();
+        try
+        {
+            if (patternData != null)
+            {
+                PatternDataConverter converter = new PatternDataConverter();
+                HashSet<Vector3Int> patternCells = converter.ConvertPattern(patternData);
+                CellManager.SetPattern(patternCells);
+                Debug.Log($"Loaded pattern: {patternData.Name} (ID: {patternData.Id}) with {patternCells.Count} cells");
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error loading pattern: {e.Message}");
+        }
+    }
 }

@@ -8,6 +8,7 @@ public class UIButtonController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private GameObject menuPanel;
+    [SerializeField] public PatternListManager patternListManager;
 
     [Header("Buttons")]
     [SerializeField] private Button startButton;
@@ -15,6 +16,11 @@ public class UIButtonController : MonoBehaviour
     [SerializeField] private Button saveButton;
     [SerializeField] private Button loadButton;
     [SerializeField] private Button speedButton;
+    [SerializeField] private Button patternBookButton;
+
+    [Header("HidePanelButton")]
+    [SerializeField] private Button slideInButton;
+
 
     [Header("Slider")]
     [SerializeField] private Slider speedSlider;
@@ -33,9 +39,12 @@ public class UIButtonController : MonoBehaviour
     public event Action OnResetButtonClicked;
     public event Action OnSaveButtonClicked;
     public event Action OnLoadButtonClicked;
+    public event Action OnPatternBookButtonClicked;
+
+    public event Action OnSlideInButtonClicked; // not in buttons dictionary
     public event Action<int> OnSpeedChanged;
 
-    public enum ButtonType { Start, Save, Load, Reset, Speed }
+    public enum ButtonType { Start, Save, Load, Reset, Speed, PatternBook }
     public enum StartButtonState { Start, Pause }
 
     private void Awake()
@@ -46,7 +55,8 @@ public class UIButtonController : MonoBehaviour
             { ButtonType.Save, saveButton },
             { ButtonType.Load, loadButton },
             { ButtonType.Reset, resetButton },
-            { ButtonType.Speed, speedButton }
+            { ButtonType.Speed, speedButton },
+            { ButtonType.PatternBook, patternBookButton }
         };
 
         originalButtonScale = startButton.transform.localScale;
@@ -56,8 +66,10 @@ public class UIButtonController : MonoBehaviour
         saveButton.onClick.AddListener(() => OnSaveButtonClicked?.Invoke());
         loadButton.onClick.AddListener(() => OnLoadButtonClicked?.Invoke());
         speedButton.onClick.AddListener(ShowSpeedSlider);
+        patternBookButton.onClick.AddListener(() => OnPatternBookButtonClicked?.Invoke());
         speedSliderBackButton.onClick.AddListener(HideSpeedSlider);
         speedSlider.onValueChanged.AddListener(value => OnSpeedChanged?.Invoke((int)value));
+        slideInButton.onClick.AddListener(() => OnSlideInButtonClicked?.Invoke());
     }
     public void UpdateRunState(bool isRunning)
     {
@@ -108,17 +120,19 @@ public class UIButtonController : MonoBehaviour
             button.interactable = interactable;
     }
 
-    public void UpdateSaveLoadButtons(bool isGameRunning)
+    public void UpdateButtonsInteractivity(bool isGameRunning)
     {
         if (isGameRunning)
         {
             SetButtonInteractable(ButtonType.Save, false);
             SetButtonInteractable(ButtonType.Load, false);
+            //SetButtonInteractable(ButtonType.PatternBook, false);
         }
         else
         {
             SetButtonInteractable(ButtonType.Save, true);
             SetButtonInteractable(ButtonType.Load, true);
+            //SetButtonInteractable(ButtonType.PatternBook, true);
         }
     }
     #endregion
@@ -139,7 +153,7 @@ public class UIButtonController : MonoBehaviour
                 completedAnimationsCount++;
                 if (completedAnimationsCount == totalButtons)
                 {
-                    UpdateSaveLoadButtons(isGameRunningState);
+                    UpdateButtonsInteractivity(isGameRunningState);
                 }
             });
         }
@@ -178,6 +192,7 @@ public class UIButtonController : MonoBehaviour
         });
     }
 
+
     public void HideSpeedSlider()
     {
         List<GameObject> elementsToHide = new List<GameObject>
@@ -209,6 +224,28 @@ public class UIButtonController : MonoBehaviour
                     ShowButtons();
             });
         }
+    }
+    public void ShowPatternsBook()
+    {
+        if (patternListManager != null)
+        {
+            patternListManager.Show();
+        }
+        //HideButtons(() =>
+        //{
+        //    if (patternListManager != null)
+        //    {
+        //        patternListManager.Show();
+        //    }
+        //});
+    }
+    public void HidePatternsBook()
+    {
+        if (patternListManager != null)
+        {
+            patternListManager.Hide();
+        }
+        //ShowButtons();
     }
 
     private void HideGameObjectAnimated(GameObject targetObject, Action onComplete = null)

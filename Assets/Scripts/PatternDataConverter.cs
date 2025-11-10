@@ -16,30 +16,10 @@ public class PatternDataConverter
         
         try
         {
-            // Parse RLE data
-            string[] lines = patternData.RleData.Split('\n');
-            int width = 0, height = 0;
-            string rleContent = "";
-            
-            // Extract dimensions and RLE content
-            foreach (string line in lines)
-            {
-                if (line.StartsWith("x =") && line.Contains("y ="))
-                {
-                    var parts = line.Split(',');
-                    foreach (var part in parts)
-                    {
-                        if (part.Contains("x ="))
-                            int.TryParse(part.Split('=')[1].Trim(), out width);
-                        if (part.Contains("y ="))
-                            int.TryParse(part.Split('=')[1].Trim(), out height);
-                    }
-                }
-                else if (!line.StartsWith("#") && !string.IsNullOrWhiteSpace(line) && !line.Contains("rule"))
-                {
-                    rleContent += line.Trim();
-                }
-            }
+            // Use dimensions from PatternData
+            int width = patternData.Width;
+            int height = patternData.Height;
+            string rleContent = patternData.RleData.Trim();
             
             // Parse RLE content
             int x = 0, y = 0;

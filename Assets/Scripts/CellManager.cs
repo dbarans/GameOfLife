@@ -125,4 +125,20 @@ public class CellManager : MonoBehaviour
             stateChanged = true;
         }
     }
+
+    public void SetPattern(HashSet<Vector3Int> patternCells)
+    {
+        lock (gridLock)
+        {
+            livingCells.Clear();
+            nextGeneration.Clear();
+            
+            foreach (Vector3Int cell in patternCells)
+            {
+                livingCells.Add(cell);
+            }
+            
+            stateChanged = true;
+        }
+    }
 }

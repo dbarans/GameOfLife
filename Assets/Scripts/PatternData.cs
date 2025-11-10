@@ -1,6 +1,7 @@
 [System.Serializable]
 public class PatternData
 {
+    public int Id;
     public string Name;
     public string Author;
     public string Description;

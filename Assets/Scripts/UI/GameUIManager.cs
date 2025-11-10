@@ -25,18 +25,18 @@ public class GameUIManager
     {
         mainCamera.backgroundColor = pauseBackgroundColor;
         buttonPanelImage.color = pauseBackgroundColor;
-        uiButtonController.UpdateSaveLoadButtons(false);
+        uiButtonController.UpdateButtonsInteractivity(false);
     }
 
     public void SetRunningUI()
     {
         mainCamera.backgroundColor = runningBackgroundColor;
         buttonPanelImage.color = runningBackgroundColor;
-        uiButtonController.UpdateSaveLoadButtons(true);
+        uiButtonController.UpdateButtonsInteractivity(true);
     }
 
-    public void UpdateSaveLoadButtons(bool isGameRunning)
+    public void UpdateButtonsInteractivity(bool isGameRunning)
     {
-        uiButtonController.UpdateSaveLoadButtons(isGameRunning);
+        uiButtonController.UpdateButtonsInteractivity(isGameRunning);
     }
 }
