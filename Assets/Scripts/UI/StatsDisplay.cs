@@ -50,6 +50,11 @@ public class StatsDisplay : MonoBehaviour
     {
         generationsCounted += 1;
     }
+    
+    public void AddCalculatedGenerations(int count)
+    {
+        generationsCounted += count;
+    }
 
 }
 

@@ -27,14 +27,14 @@ public class GenerationManager
     {
         lock (nextGenLock)
         {
-            IReadOnlyCollection<Vector3Int> livingCells = cellManager.GetLivingCells();
-            HashSet<Vector3Int> newGeneration = CalculateNextGeneration(livingCells);
+            HashSet<Vector3Int> livingCellsCopy = cellManager.GetLivingCells();
+            HashSet<Vector3Int> newGeneration = CalculateNextGeneration(livingCellsCopy);
             cellManager.UpdateNextGeneration(newGeneration);
             onGenerationCompleted?.Invoke();
         }
     }
 
-    public HashSet<Vector3Int> CalculateNextGeneration(IReadOnlyCollection<Vector3Int> currentGen)
+    public HashSet<Vector3Int> CalculateNextGeneration(HashSet<Vector3Int> currentGen)
     {
         HashSet<Vector3Int> newGeneration = new HashSet<Vector3Int>();
         HashSet<Vector3Int> cellsToCheck = new HashSet<Vector3Int>(currentGen);
@@ -53,8 +53,9 @@ public class GenerationManager
 
         foreach (Vector3Int cell in cellsToCheck)
         {
-            int neighbors = CheckNeighbors(cell);
-            bool isCellAlive = cellManager.IsCellAlive(cell);
+            int neighbors = CheckNeighbors(cell, currentGen);
+            bool isCellAlive = currentGen.Contains(cell);
+            
             if (isCellAlive)
             {
                 if (neighbors == 2 || neighbors == 3)
@@ -74,7 +75,7 @@ public class GenerationManager
         return newGeneration;
     }
 
-    private int CheckNeighbors(Vector3Int cell)
+    private int CheckNeighbors(Vector3Int cell, HashSet<Vector3Int> currentGen)
     {
         int neighborsCount = 0;
         for (int x = -1; x <= 1; x++)
@@ -83,7 +84,7 @@ public class GenerationManager
             {
                 if (x == 0 && y == 0) continue;
                 Vector3Int neighbor = new Vector3Int(cell.x + x, cell.y + y, cell.z);
-                if (cellManager.IsCellAlive(neighbor))
+                if (currentGen.Contains(neighbor))
                 {
                     neighborsCount++;
                 }
