@@ -44,6 +44,7 @@ public class GameController : MonoBehaviour
     // === Debug ===
     private int generationsCount = 0;
     private int calculatedGenerationsCount = 0;
+    [SerializeField] private bool displayStats = false;
 
 
     // === Synchronization ===
@@ -110,6 +111,13 @@ public class GameController : MonoBehaviour
             buttonPanelSlider.SlideIn();
         }
     }
+    private void Start()
+    {
+        if (!displayStats)
+        {
+            gameStatsDisplay.gameObject.SetActive(false);
+        }
+    }
 
 
     private void Update()
@@ -142,15 +150,18 @@ public class GameController : MonoBehaviour
                 break;
             }
         }
-        if (gameStatsDisplay != null)
+        HandleStatsDisplay();
+    }
+    private void HandleStatsDisplay()
+    {
+        if (!displayStats || gameStatsDisplay == null) return;
+        
+        int calculatedCount = Interlocked.Exchange(ref calculatedGenerationsCount, 0);
+        if (calculatedCount > 0)
         {
-            int calculatedCount = Interlocked.Exchange(ref calculatedGenerationsCount, 0);
-            if (calculatedCount > 0)
-            {
-                gameStatsDisplay.AddCalculatedGenerations(calculatedCount);
-            }
-            gameStatsDisplay.UpdateGenerationsPerSecondDisplay();
+            gameStatsDisplay.AddCalculatedGenerations(calculatedCount);
         }
+        gameStatsDisplay.UpdateGenerationsPerSecondDisplay();
     }
     private void IncrementGeneration()
     {
