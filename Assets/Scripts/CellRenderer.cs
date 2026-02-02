@@ -67,7 +67,7 @@ public class CellRenderer : MonoBehaviour
     private void UpdateView()
     {
         tilemap.ClearAllTiles();
-        IReadOnlyCollection<Vector3Int> livingCells = cellManager.GetLivingCells();
+        HashSet<Vector3Int> livingCells = cellManager.GetLivingCells();
         Vector3Int[] visibleCells = livingCells
         .Where(cell => cell.x >= leftmostTile && cell.x <= rightmostTile &&
                        cell.y >= bottommostTile && cell.y <= topmostTile)

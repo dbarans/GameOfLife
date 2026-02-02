@@ -8,12 +8,8 @@ public class StatsDisplay : MonoBehaviour
     private float deltaTime = 0.0f;
     private float fps = 0.0f;
 
-    private float measurementTimer = 0f;
-    private int generationsCounted = 0;
-    private const float MEASUREMENT_INTERVAL = 3.0f;
-    private float currentGenerationsPerSecond = 0f;
     [SerializeField] private TextMeshProUGUI genCounterText;
-    private void Start()
+    private void Awake()
     {
         float refreshRate = (float)Screen.currentResolution.refreshRateRatio.value;
         Application.targetFrameRate = !float.IsNaN(refreshRate) ? (int)refreshRate : 60;
@@ -29,26 +25,10 @@ public class StatsDisplay : MonoBehaviour
             fpsText.text = fps.ToString("F0")+ " FPS";
         }
     }
-    public void UpdateGenerationsPerSecondDisplay()
+    public void SetGenerationsPerSecond(int gps)
     {
-        measurementTimer += Time.deltaTime;
-
-        if (measurementTimer >= MEASUREMENT_INTERVAL)
-        {
-            currentGenerationsPerSecond = generationsCounted / measurementTimer;
-
-            if (genCounterText != null)
-            {
-                genCounterText.text = currentGenerationsPerSecond.ToString("F0") + " GPS";
-            }
-
-            measurementTimer = 0f;
-            generationsCounted = 0;
-        }
-    }
-    public void IncrementGenerationCount()
-    {
-        generationsCounted += 1;
+        if (genCounterText != null)
+            genCounterText.text = gps + " GPS";
     }
 
 }

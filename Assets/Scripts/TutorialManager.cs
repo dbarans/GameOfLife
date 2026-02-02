@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour
@@ -65,6 +66,7 @@ public class TutorialManager : MonoBehaviour
     [SerializeField] private GameObject buttonsPanel;
     [SerializeField] private Button buttonsPanelButtonON;
     [SerializeField] private Button buttonsPanelButtonOFF;
+    [SerializeField] private Button skipButton;
     [SerializeField] private GameObject rulesContainer;
     [SerializeField] private GameObject tutorialSpace;
 
@@ -127,6 +129,7 @@ public class TutorialManager : MonoBehaviour
     public Action OnTutorialCompleted { get; set; }
     public Action OnIconGliderDrawn { get; set; }
     public Action OnFirstGenerationDraw { get; set; }
+    public Action OnSkipTutorial { get; set; }
 
     private void Start()
     {
@@ -232,7 +235,7 @@ public class TutorialManager : MonoBehaviour
         CanvasGroup messageBoxCanvasGroup = messageBox.gameObject.GetComponent<CanvasGroup>();
         if (messageBoxCanvasGroup != null)
         {
-            messageBoxCanvasGroup.DOFade(0, 0.5f)
+            messageBoxCanvasGroup.DOFade(0, 0.3f)
                 .OnComplete(() =>
                 {
                     messageBox.text = "";
@@ -321,8 +324,8 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                StartCoroutine(WaitAndProceed(2.5f, () => {  
-                ShowMessage(firstCellDeathMessage, () => { StartCoroutine(WaitAndProceed(3.5f, () => {
+                StartCoroutine(WaitAndProceed(1.5f, () => {  
+                ShowMessage(firstCellDeathMessage, () => { StartCoroutine(WaitAndProceed(2.5f, () => {
                     statePhase = StatePhase.End; 
 
                 })); }, lowerMessageBox);
@@ -351,6 +354,7 @@ public class TutorialManager : MonoBehaviour
                 {
                     touchHandler.SetCanAddCells(true);
                     touchHandler.SetCanRemoveCells(true);
+                    skipButton.gameObject.SetActive(true);
                 }, upperMessageBox);
                 }));
                 statePhase = StatePhase.Update;
@@ -381,7 +385,7 @@ public class TutorialManager : MonoBehaviour
             case StatePhase.Update:
                 if (cellGrid.IsLivingCellsSetEmpty())
                 {
-                    ShowStateTransition(tryAgainSurviveMessage, TutorialState.AddMoreToSurvive, lowerMessageBox, 1f, 2.5f);
+                    ShowStateTransition(tryAgainSurviveMessage, TutorialState.AddMoreToSurvive, lowerMessageBox, 1f, 1.5f);
                 }
                 else if (cellGrid.GetLivingCells().Count >= 3 && _generationCount >= 2)
                 {
@@ -420,7 +424,7 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                StartCoroutine(WaitAndProceed(2.5f, () =>
+                StartCoroutine(WaitAndProceed(1.5f, () =>
                 {
                     ShowMessage(addTooManyCellsMessage.Replace("{0}",minCellsToAdd.ToString()).Replace("{1}",cellGrid.GetLivingCells().Count.ToString()), () => 
                     { 
@@ -485,7 +489,7 @@ public class TutorialManager : MonoBehaviour
             case StatePhase.Update:
                 if (_generationCount >= 1)
                 {
-                    ShowStateTransition(overpopulationMessage, TutorialState.AfterOverpopulation, lowerMessageBox, 2f, 3.5f);
+                    ShowStateTransition(overpopulationMessage, TutorialState.AfterOverpopulation, lowerMessageBox, 1f, 1.5f);
                 }
                 break;
         }
@@ -688,7 +692,7 @@ public class TutorialManager : MonoBehaviour
         {
             case StatePhase.Start:
                 ShowMessage(gamePurposeMessage1, () => {
-                    StartCoroutine(WaitAndProceed(3f, () => { statePhase = StatePhase.End; }));
+                    StartCoroutine(WaitAndProceed(2f, () => { statePhase = StatePhase.End; }));
                      }, upperMessageBox);
                 statePhase = StatePhase.Update;
                 break;
@@ -708,7 +712,7 @@ public class TutorialManager : MonoBehaviour
         {
             case StatePhase.Start:
                 ShowMessage(gamePurposeMessage2, () => {
-                    StartCoroutine(WaitAndProceed(3f, () => { statePhase = StatePhase.End; }));
+                    StartCoroutine(WaitAndProceed(2f, () => { statePhase = StatePhase.End; }));
                 }, upperMessageBox);
                 statePhase = StatePhase.Update;
                 break;
@@ -781,6 +785,7 @@ public class TutorialManager : MonoBehaviour
                 statePhase = StatePhase.End;
                 isTutorialOn = false;
                 PlayerPrefsManager.HasCompletedTutorial = true;
+                skipButton.gameObject.SetActive(false);
                 OnTutorialCompleted?.Invoke();
                 break;
         }
@@ -823,6 +828,10 @@ public class TutorialManager : MonoBehaviour
                 }));
             }, messageBox);
         }));
+    }
+    public void SkipTutorial()
+    {
+        OnSkipTutorial?.Invoke();
     }
 
 }
