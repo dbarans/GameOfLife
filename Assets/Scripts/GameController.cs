@@ -6,8 +6,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
@@ -44,6 +45,7 @@ public class GameController : MonoBehaviour
     // === Debug ===
     private int generationsCount = 0;
     private int calculatedGenerationsCount = 0;
+    private float lastStatsRealtime = 0f;
     [SerializeField] private bool displayStats = false;
 
 
@@ -103,6 +105,7 @@ public class GameController : MonoBehaviour
             tutorialManager.OnIconGliderDrawn += () => { genPerSec *= 2; };
             tutorialManager.OnFirstGenerationDraw += () => { touchHandler.IsTutorialOn = false; };
             tutorialManager.OnTutorialCompleted += EndTutorial;
+            tutorialManager.OnSkipTutorial += SkipTutorial;
 
             StartTutorial();
         }
@@ -131,7 +134,8 @@ public class GameController : MonoBehaviour
     private void UpdateGeneration()
     {
         float now = Time.unscaledTime;
-        int safety = 8;
+
+        int safety = Mathf.Max(16, Mathf.CeilToInt(genPerSec * 2f));
         while (now >= nextGenerationDisplayTime && safety-- > 0)
         {
             int desiredGenNumber = generationsCount + 1;
@@ -155,13 +159,12 @@ public class GameController : MonoBehaviour
     private void HandleStatsDisplay()
     {
         if (!displayStats || gameStatsDisplay == null) return;
-        
+        float now = Time.realtimeSinceStartup;
+        if (lastStatsRealtime == 0f) lastStatsRealtime = now;
+        if (now - lastStatsRealtime < 1f) return;
         int calculatedCount = Interlocked.Exchange(ref calculatedGenerationsCount, 0);
-        if (calculatedCount > 0)
-        {
-            gameStatsDisplay.AddCalculatedGenerations(calculatedCount);
-        }
-        gameStatsDisplay.UpdateGenerationsPerSecondDisplay();
+        lastStatsRealtime = now;
+        gameStatsDisplay.SetGenerationsPerSecond(calculatedCount);
     }
     private void IncrementGeneration()
     {
@@ -193,6 +196,13 @@ public class GameController : MonoBehaviour
         touchHandler.IsTutorialOn = false;
         gameData.isTutorialOn = false;
     }
+    private void SkipTutorial()
+    {
+        PlayerPrefsManager.HasCompletedTutorial = true;
+        PlayerPrefs.Save();
+        gameData.isTutorialOn = false;
+        SceneManager.LoadScene("Game");
+    }
     public void RunGame()
     {
         if (CellManager.IsLivingCellsSetEmpty()) return;
@@ -203,7 +213,8 @@ public class GameController : MonoBehaviour
         generationsCount = 0;
         tutorialManager.GenerationCount = generationsCount;
         nextGenerationDisplayTime = Time.unscaledTime + generationIntervalSec;
-        
+        lastStatsRealtime = 0f;
+
         StartCalculationThread();
         
         gameUIManager.SetRunningUI();

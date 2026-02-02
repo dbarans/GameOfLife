@@ -10,15 +10,18 @@ public class CellManager : MonoBehaviour
     private HashSet<Vector3Int> savedCells = new HashSet<Vector3Int>();
     private bool stateChanged = false;
 
-    private const int BUFFER_SIZE = 10;
+    private const int BUFFER_SIZE = 128;
     private List<HashSet<Vector3Int>> generationBuffer = new List<HashSet<Vector3Int>>();
     private int displayedGenerationIndex = 0;
-    private int calculatedGenerationIndex = 0; 
+    private int calculatedGenerationIndex = 0;
     private int latestReadyGenerationIndex = -1;
 
     private int displayedGenerationNumber = 0;
     private int calculatedGenerationNumber = 0;
     private readonly int[] bufferGenerationNumbers = new int[BUFFER_SIZE];
+
+    // Maximum number of generations that can be calculated ahead of what is currently displayed.
+    private const int MAX_GENERATIONS_AHEAD = 100;
 
     private static readonly object gridLock = new object();
 
@@ -87,14 +90,15 @@ public class CellManager : MonoBehaviour
     {
         lock (gridLock)
         {
-            int nextIndex = (calculatedGenerationIndex + 1) % BUFFER_SIZE;
-
-            if (nextIndex == displayedGenerationIndex)
+            // Do not allow calculations to go too far ahead of what is currently displayed.
+            if (calculatedGenerationNumber - displayedGenerationNumber >= MAX_GENERATIONS_AHEAD)
             {
                 bufferIndex = -1;
                 generationNumber = -1;
                 return false;
             }
+
+            int nextIndex = (calculatedGenerationIndex + 1) % BUFFER_SIZE;
 
             bufferIndex = nextIndex;
             generationNumber = calculatedGenerationNumber + 1;
