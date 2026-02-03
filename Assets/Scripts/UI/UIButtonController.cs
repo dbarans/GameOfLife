@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class UIButtonController : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private GameObject menuPanel;
     [SerializeField] public PatternListManager patternListManager;
+    [SerializeField] public MenuManager menuPanelManager;
 
     [Header("Buttons")]
     [SerializeField] private Button startButton;
@@ -17,6 +17,7 @@ public class UIButtonController : MonoBehaviour
     [SerializeField] private Button loadButton;
     [SerializeField] private Button speedButton;
     [SerializeField] private Button patternBookButton;
+    [SerializeField] private Button menuPanelButton;
 
     [Header("HidePanelButton")]
     [SerializeField] private Button slideInButton;
@@ -40,11 +41,12 @@ public class UIButtonController : MonoBehaviour
     public event Action OnSaveButtonClicked;
     public event Action OnLoadButtonClicked;
     public event Action OnPatternBookButtonClicked;
+    public event Action OnMenuPanelButtonClicked;
 
     public event Action OnSlideInButtonClicked; // not in buttons dictionary
     public event Action<int> OnSpeedChanged;
 
-    public enum ButtonType { Start, Save, Load, Reset, Speed, PatternBook }
+    public enum ButtonType { Start, Save, Load, Reset, Speed, PatternBook, MenuPanel }
     public enum StartButtonState { Start, Pause }
 
     private void Awake()
@@ -56,7 +58,8 @@ public class UIButtonController : MonoBehaviour
             { ButtonType.Load, loadButton },
             { ButtonType.Reset, resetButton },
             { ButtonType.Speed, speedButton },
-            { ButtonType.PatternBook, patternBookButton }
+            { ButtonType.PatternBook, patternBookButton },
+            { ButtonType.MenuPanel, menuPanelButton }
         };
 
         originalButtonScale = startButton.transform.localScale;
@@ -67,6 +70,7 @@ public class UIButtonController : MonoBehaviour
         loadButton.onClick.AddListener(() => OnLoadButtonClicked?.Invoke());
         speedButton.onClick.AddListener(ShowSpeedSlider);
         patternBookButton.onClick.AddListener(() => OnPatternBookButtonClicked?.Invoke());
+        menuPanelButton.onClick.AddListener(() => OnMenuPanelButtonClicked?.Invoke());
         speedSliderBackButton.onClick.AddListener(HideSpeedSlider);
         speedSlider.onValueChanged.AddListener(value => OnSpeedChanged?.Invoke((int)value));
         slideInButton.onClick.AddListener(() => OnSlideInButtonClicked?.Invoke());
@@ -231,13 +235,6 @@ public class UIButtonController : MonoBehaviour
         {
             patternListManager.Show();
         }
-        //HideButtons(() =>
-        //{
-        //    if (patternListManager != null)
-        //    {
-        //        patternListManager.Show();
-        //    }
-        //});
     }
     public void HidePatternsBook()
     {
@@ -245,7 +242,20 @@ public class UIButtonController : MonoBehaviour
         {
             patternListManager.Hide();
         }
-        //ShowButtons();
+    }
+    public void ShowMenuPanel()
+    {
+        if (menuPanelManager != null)
+        {
+            menuPanelManager.Show();
+        }
+    }
+    public void HideMenuPanel()
+    {
+        if (menuPanelManager != null)
+        {
+            menuPanelManager.Hide();
+        }
     }
 
     private void HideGameObjectAnimated(GameObject targetObject, Action onComplete = null)

@@ -80,6 +80,7 @@ public class GameController : MonoBehaviour
         uiButtonController.OnLoadButtonClicked += LoadGame;
         uiButtonController.OnSpeedChanged += ChangeSpeed;
         uiButtonController.OnPatternBookButtonClicked += OpenPatternBook;
+        uiButtonController.OnMenuPanelButtonClicked += OpenMenuPanel;
         uiButtonController.OnSlideInButtonClicked += SlideOutButtonsPanel;
         
         // Subscribe to pattern selection
@@ -313,15 +314,34 @@ public class GameController : MonoBehaviour
     }
     public void OpenPatternBook()
     {
+        if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Extended && buttonPanelSlider.GetExtendedState() == ButtonPanelSlider.ExtendedState.PatternsBook)
+        {
+            SlideOutButtonsPanel();
+            return;
+        }
         PauseGame();
-        buttonPanelSlider.SlideToPatternsBook();
+        buttonPanelSlider.SlideToExtended(ButtonPanelSlider.ExtendedState.PatternsBook);
         uiButtonController.ShowPatternsBook();
+        uiButtonController.HideMenuPanel();
+    }
+    public void OpenMenuPanel()
+    {
+        if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Extended && buttonPanelSlider.GetExtendedState() == ButtonPanelSlider.ExtendedState.MenuPanel)
+        {
+            SlideOutButtonsPanel();
+            return;
+        } 
+        PauseGame();
+        buttonPanelSlider.SlideToExtended(ButtonPanelSlider.ExtendedState.MenuPanel);
+        uiButtonController.ShowMenuPanel();
+        uiButtonController.HidePatternsBook();
     }
     public void SlideOutButtonsPanel()
     {
         buttonPanelSlider.SlideOut();
-        if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Extended) return;
+        if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Normal) return;
         uiButtonController.HidePatternsBook();
+        uiButtonController.HideMenuPanel();
     }
 
     public void LoadPattern(PatternData patternData)

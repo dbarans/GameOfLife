@@ -672,7 +672,7 @@ public class TutorialManager : MonoBehaviour
                 break;
 
             case StatePhase.Update:
-                if (buttonPanelSlider.IsExtended())
+                if (!buttonPanelSlider.IsHidden())
                 {
                     statePhase = StatePhase.End;
                     buttonsPanelButtonOFF.gameObject.SetActive(false);
