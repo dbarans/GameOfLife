@@ -7,24 +7,61 @@ using UnityEngine.UI;
 public class MenuManager : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private GameObject MenuPanel;
+    [SerializeField] private GameObject menuPanel;
+    [SerializeField] private Button tutorialButton;
+    [SerializeField] private Button rulesButton;
+    [SerializeField] private Button settingsButton;
+    [SerializeField] private Button coffeeButton;
+    [SerializeField] private Button aboutGameButton;
+
+    private const string COFFEE_URL = "https://buymeacoffee.com/dbarans";
 
 
     private void Start()
     {
-        MenuPanel.SetActive(false);
+        InitializeUI();
+        menuPanel.SetActive(false);
+    }
+    private void InitializeUI()
+    {
+        tutorialButton.onClick.AddListener(OnTutorialButtonClicked);
+        rulesButton.onClick.AddListener(OnRulesButtonClicked);
+        settingsButton.onClick.AddListener(OnSettingsButtonClicked);
+        coffeeButton.onClick.AddListener(OnCoffeeButtonClicked);
+        aboutGameButton.onClick.AddListener(OnAboutGameButtonClicked);
     }
 
     public void Show()
     {
-        Debug.Log("Showing Menu Panel");
-        MenuPanel.SetActive(true);
+        menuPanel.SetActive(true);
     }
 
     public void Hide()
     {
-        Debug.Log("Hiding Menu Panel");
-        MenuPanel.SetActive(false);
+        menuPanel.SetActive(false);
     }
+
+    public void OnTutorialButtonClicked()
+    {
+        Debug.Log("Opening Tutorial Panel");
+    }
+    public void OnRulesButtonClicked()
+    {
+        Debug.Log("Opening Rules Panel");
+    }
+    public void OnSettingsButtonClicked()
+    {
+        Debug.Log("Opening Settings Panel");
+    }
+    public void OnCoffeeButtonClicked()
+    {
+        Application.OpenURL(COFFEE_URL);
+        Debug.Log("Opening Coffee Panel");
+    }
+    public void OnAboutGameButtonClicked()
+    {
+        Debug.Log("Opening About Game Panel");
+    }
+
 }
 

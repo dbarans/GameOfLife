@@ -2911,7 +2911,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cca4c363849855a4d928c93e51259220, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MenuPanel: {fileID: 238284585}
+  menuPanel: {fileID: 238284585}
+  tutorialButton: {fileID: 723558494}
+  rulesButton: {fileID: 478670928}
+  settingsButton: {fileID: 504320641}
+  coffeeButton: {fileID: 1140443306}
+  aboutGameButton: {fileID: 2048251298}
 --- !u!114 &756379465
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3829,7 +3834,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 897407888}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e6face44b3d74542a24e83888f1affc, type: 3}
+  m_Script: {fileID: 11500000, guid: 8bc8814d14ddc2249b458775c30d7bd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   patternListParent: {fileID: 897407889}
@@ -3837,7 +3842,7 @@ MonoBehaviour:
   previousPageButton: {fileID: 150968362}
   nextPageButton: {fileID: 772665725}
   pageInfoText: {fileID: 405574319}
-  backToMenuButton: {fileID: 986343017878780109}
+  backToMenuButton: {fileID: 0}
   patternsBook: {fileID: 1028231365}
   patternsPerPage: 8
 --- !u!114 &897407893
