@@ -426,7 +426,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -31.42, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1080, y: 151.62}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &63582448
@@ -985,6 +985,7 @@ MonoBehaviour:
   rulesContainer: {fileID: 299463034}
   tutorialSpace: {fileID: 1591027108}
   charsPerSecond: 60
+  standaloneRulesReenableInteractionDelay: 0.4
 --- !u!1 &294309627
 GameObject:
   m_ObjectHideFlags: 0
@@ -1471,10 +1472,10 @@ MonoBehaviour:
   ruleTitleText: {fileID: 2137376431}
   ruleDescriptionText: {fileID: 1963843851}
   titleCharactersPerSecond: 50
-  descriptionCharactersPerSecond: 30
+  descriptionCharactersPerSecond: 40
   overallFadeInDuration: 0.5
   delayBetweenTitleAndDescription: 0.1
-  pauseAfterThisElement: 0.2
+  pauseAfterThisElement: 0.1
 --- !u!114 &377975350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3023,10 +3024,10 @@ MonoBehaviour:
   ruleTitleText: {fileID: 1983365014}
   ruleDescriptionText: {fileID: 1375851318}
   titleCharactersPerSecond: 50
-  descriptionCharactersPerSecond: 30
+  descriptionCharactersPerSecond: 40
   overallFadeInDuration: 0.5
   delayBetweenTitleAndDescription: 0.1
-  pauseAfterThisElement: 0.2
+  pauseAfterThisElement: 0.1
 --- !u!114 &763034849
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3937,10 +3938,10 @@ MonoBehaviour:
   ruleTitleText: {fileID: 1025732942}
   ruleDescriptionText: {fileID: 2006141218}
   titleCharactersPerSecond: 50
-  descriptionCharactersPerSecond: 30
+  descriptionCharactersPerSecond: 40
   overallFadeInDuration: 0.5
   delayBetweenTitleAndDescription: 0.1
-  pauseAfterThisElement: 0.2
+  pauseAfterThisElement: 0.1
 --- !u!114 &909267992
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6315,10 +6316,10 @@ MonoBehaviour:
   ruleTitleText: {fileID: 315074389}
   ruleDescriptionText: {fileID: 1755394704}
   titleCharactersPerSecond: 50
-  descriptionCharactersPerSecond: 30
+  descriptionCharactersPerSecond: 40
   overallFadeInDuration: 0.5
   delayBetweenTitleAndDescription: 0.1
-  pauseAfterThisElement: 0.2
+  pauseAfterThisElement: 0.1
 --- !u!114 &1608505572
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8528,7 +8529,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2000818539331266245
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8548,11 +8549,11 @@ MonoBehaviour:
     m_Bottom: 0
   m_ChildAlignment: 4
   m_StartCorner: 0
-  m_StartAxis: 1
+  m_StartAxis: 0
   m_CellSize: {x: 85, y: 85}
-  m_Spacing: {x: 58.3, y: 0}
-  m_Constraint: 0
-  m_ConstraintCount: 2
+  m_Spacing: {x: 65.5, y: 0}
+  m_Constraint: 2
+  m_ConstraintCount: 1
 --- !u!224 &2222385465380160248
 RectTransform:
   m_ObjectHideFlags: 0
@@ -8764,7 +8765,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 982.8618, y: 151.62}
+  m_SizeDelta: {x: 1080, y: 151.62}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &2903968861058310456
 RectTransform:
@@ -9155,7 +9156,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &7644529120161099072
 GameObject:
   m_ObjectHideFlags: 0

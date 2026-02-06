@@ -9,6 +9,7 @@ public class PresentationFlowManager : MonoBehaviour
     private Sequence mainFlowSequence;
     private Sequence activeStepSequence;
     private bool presentationFinished = false;
+    private Action _onStopped;
 
     void Awake()
     {
@@ -17,8 +18,9 @@ public class PresentationFlowManager : MonoBehaviour
 
     void OnDisable()
     {
-        mainFlowSequence?.Kill();
-        DOTween.KillAll();
+        if (mainFlowSequence != null && mainFlowSequence.IsActive())
+            mainFlowSequence.Kill();
+        mainFlowSequence = null;
     }
 
 
@@ -50,15 +52,24 @@ public class PresentationFlowManager : MonoBehaviour
         }
     }
 
-    public void StartPresentation(Action onCompleted)
+    public void StartPresentation(Action onCompleted, Action onStopped = null)
     {
         InitializeAllElements();
         presentationFinished = false;
+        _onStopped = onStopped;
 
-        mainFlowSequence?.Kill();
+        if (mainFlowSequence != null && mainFlowSequence.IsActive())
+            mainFlowSequence.Kill();
+        mainFlowSequence = null;
 
         mainFlowSequence = DOTween.Sequence();
         mainFlowSequence.SetAutoKill(false);
+        mainFlowSequence.OnKill(() =>
+        {
+            mainFlowSequence = null;
+            _onStopped?.Invoke();
+            _onStopped = null;
+        });
 
         if (sequenceElementObjects == null || sequenceElementObjects.Count == 0)
         {
@@ -103,6 +114,8 @@ public class PresentationFlowManager : MonoBehaviour
         {
             Debug.Log("Presentation finished!");
             presentationFinished = true;
+            _onStopped = null;
+            mainFlowSequence = null;
             onCompleted?.Invoke();
         });
 
@@ -111,7 +124,11 @@ public class PresentationFlowManager : MonoBehaviour
 
     public void StopPresentation()
     {
-        mainFlowSequence?.Kill();
+        if (mainFlowSequence != null && mainFlowSequence.IsActive())
+        {
+            mainFlowSequence.Kill();
+        }
+        mainFlowSequence = null;
         InitializeAllElements();
         Debug.Log("Presentation stopped.");
     }

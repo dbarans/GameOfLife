@@ -113,6 +113,10 @@ public class TutorialManager : MonoBehaviour
     private TutorialState tutorialState = TutorialState.End;
     private StatePhase statePhase = StatePhase.End;
 
+    private Action _standaloneRulesOnClosed;
+    private bool _standaloneRulesWaitingForClick;
+    [SerializeField] private float standaloneRulesReenableInteractionDelay = 0.4f;
+
     private int _generationCount = 0;
 
     public int GenerationCount
@@ -130,6 +134,7 @@ public class TutorialManager : MonoBehaviour
     public Action OnIconGliderDrawn { get; set; }
     public Action OnFirstGenerationDraw { get; set; }
     public Action OnSkipTutorial { get; set; }
+    public Action OnPressStartButtoState { get; set; }
 
     private void Start()
     {
@@ -144,6 +149,20 @@ public class TutorialManager : MonoBehaviour
     }
     private void Update()
     {
+        if (_standaloneRulesOnClosed != null && rulesContainer != null && rulesContainer.activeSelf && Input.GetMouseButtonDown(0))
+        {
+            if (_standaloneRulesWaitingForClick)
+            {
+                _standaloneRulesWaitingForClick = false;
+                DoStandaloneRulesCleanup();
+            }
+            else
+            {
+                rulesPresentationManager?.StopPresentation();
+            }
+            return;
+        }
+
         if (!isTutorialOn) return;
 
         switch (tutorialState)
@@ -538,13 +557,62 @@ public class TutorialManager : MonoBehaviour
                     rulesContainer.SetActive(false);
                     HideMessage(() =>
                     {
-                        tutorialState = TutorialState.ButtonsPanel;
+                        tutorialState = TutorialState.StartButton;
                         statePhase = StatePhase.Start;
                     }, upperMessageBox);
                 }
                 break;
         }
     }
+
+    public void ShowRulesStandalone(Action<Action> onOpen, Action onClosed)
+    {
+        if (isTutorialOn) return;
+        if (rulesContainer == null || rulesPresentationManager == null) return;
+
+        _standaloneRulesOnClosed = onClosed;
+        _standaloneRulesWaitingForClick = false;
+        onOpen?.Invoke(() =>
+        {
+            if (touchHandler != null)
+            {
+                touchHandler.SetCanAddCells(false);
+                touchHandler.SetCanRemoveCells(false);
+            }
+            if (cellGrid != null) cellGrid.HideGrid();
+            rulesContainer.SetActive(true);
+            rulesPresentationManager.StartPresentation(
+                () => { _standaloneRulesWaitingForClick = true; },
+                DoStandaloneRulesCleanup);
+        });
+    }
+
+    private void DoStandaloneRulesCleanup()
+    {
+        _standaloneRulesWaitingForClick = false;
+        if (rulesContainer != null) rulesContainer.SetActive(false);
+        if (cellGrid != null) cellGrid.RestoreFromHide();
+        StartCoroutine(ReenableCellInteractionNextFrame());
+        _standaloneRulesOnClosed?.Invoke();
+        _standaloneRulesOnClosed = null;
+    }
+
+    private IEnumerator ReenableCellInteractionNextFrame()
+    {
+        yield return new WaitForSeconds(standaloneRulesReenableInteractionDelay);
+        if (touchHandler != null)
+        {
+            touchHandler.SetCanAddCells(true);
+            touchHandler.SetCanRemoveCells(true);
+        }
+    }
+
+    public void CloseStandaloneRules()
+    {
+        if (_standaloneRulesOnClosed == null) return;
+        rulesPresentationManager?.StopPresentation();
+    }
+
     private void HandleDrawIconState()
     {
         switch (statePhase)
@@ -737,6 +805,7 @@ public class TutorialManager : MonoBehaviour
             case (StatePhase.Start):
                 ShowMessage(startButtonMessage, () =>
                 {
+                    OnPressStartButtoState?.Invoke();
                     uiButtonController.SetButtonInteractable(UIButtonController.ButtonType.Start, true);
                     touchHandler.SetCanAddCells(true);
                     touchHandler.SetCanRemoveCells(true);
@@ -778,7 +847,7 @@ public class TutorialManager : MonoBehaviour
         {
             case StatePhase.Start:
                 ShowMessage(tutorialEndMessage, () => { StartCoroutine(WaitAndProceed(1f, () => { HideMessage(() => { },upperMessageBox); })); }, upperMessageBox);
-                buttonsPanelButtonOFF.gameObject.SetActive(true);
+                //buttonsPanelButtonOFF.gameObject.SetActive(true);
                 uiButtonController.SetAllButtonsInteractable(true);
                 uiButtonController.SetButtonInteractable(UIButtonController.ButtonType.Save, false);
                 uiButtonController.SetButtonInteractable(UIButtonController.ButtonType.Load, false);

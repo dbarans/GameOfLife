@@ -42,6 +42,37 @@ public class ButtonPanelSlider : MonoBehaviour
         rectTransform.anchoredPosition = hiddenPosition;
     }
 
+    public void SlideToHidden(System.Action onComplete = null)
+    {
+        if (slideState == SlideState.Hidden)
+        {
+            onComplete?.Invoke();
+            return;
+        }
+        rectTransform.DOKill();
+        rectTransform.DOAnchorPos(hiddenPosition, animationDuration).SetEase(Ease.InBack)
+            .OnComplete(() =>
+            {
+                //slideInButton.SetActive(true);
+                slideState = SlideState.Hidden;
+                extendedState = ExtendedState.NotExtended;
+                onComplete?.Invoke();
+            });
+    }
+
+    public void SlideToNormal()
+    {
+        if (slideState == SlideState.Normal) return;
+        rectTransform.DOKill();
+        //slideInButton.SetActive(false);
+        rectTransform.DOAnchorPos(normalPosition, animationDuration).SetEase(Ease.OutBack)
+            .OnComplete(() =>
+            {
+                slideState = SlideState.Normal;
+                extendedState = ExtendedState.NotExtended;
+            });
+    }
+
     public void SlideOut()
     {
         if (slideState == SlideState.Extended)
@@ -49,24 +80,12 @@ public class ButtonPanelSlider : MonoBehaviour
             SlideToNormal();
             return;
         }
-        else
-        {
-
-            rectTransform.DOAnchorPos(hiddenPosition, animationDuration).SetEase(Ease.InBack)
-            .OnComplete(() =>
-            {
-                slideInButton.SetActive(true);
-                slideState = SlideState.Hidden;
-                extendedState = ExtendedState.NotExtended;
-            });
-        } 
+        SlideToHidden(null);
     }
+
     public void SlideIn()
     {
-        slideInButton.SetActive(false);
-        rectTransform.DOAnchorPos(normalPosition, animationDuration).SetEase(Ease.OutBack);
-        slideState = SlideState.Normal;
-
+        SlideToNormal();
     }
 
     public void SlideToExtended(ExtendedState state)
@@ -76,20 +95,12 @@ public class ButtonPanelSlider : MonoBehaviour
             extendedState = state;
             return;
         }
+        rectTransform.DOKill();
         rectTransform.DOAnchorPos(extendedBookPosition, animationDuration).SetEase(Ease.OutBack)
             .OnComplete(() =>
             {
                 slideState = SlideState.Extended;
                 extendedState = state;
-            });
-    }
-    public void SlideToNormal()
-    {
-        rectTransform.DOAnchorPos(normalPosition, animationDuration).SetEase(Ease.OutBack)
-            .OnComplete(() =>
-            {
-                slideState = SlideState.Normal;
-                extendedState = ExtendedState.NotExtended;
             });
     }
 

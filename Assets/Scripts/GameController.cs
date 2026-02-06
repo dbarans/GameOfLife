@@ -86,7 +86,10 @@ public class GameController : MonoBehaviour
             uiButtonController.OnSlideInButtonClicked += SlideOutButtonsPanel;
 
             if (uiButtonController.menuPanelManager != null)
+            {
                 uiButtonController.menuPanelManager.TutorialRequested += RequestTutorialFromMenu;
+                uiButtonController.menuPanelManager.RulesRequested += ShowRulesFromMenu;
+            }
 
             if (uiButtonController.patternListManager != null)
                 uiButtonController.patternListManager.OnPatternSelected += LoadPattern;
@@ -95,31 +98,34 @@ public class GameController : MonoBehaviour
         {
             Debug.LogWarning("GameController: uiButtonController is not assigned. UI buttons will not work.");
         }
-
-        if (gameData.isTutorialOn)
+        if (tutorialManager != null)
         {
-            tutorialManager.OnAllCellsDead += () =>
+            tutorialManager.OnPressStartButtoState += SlideInButtonsPanel;
+            if (gameData.isTutorialOn)
             {
-                PauseGame();
-                generationsCount = 0;
-                tutorialManager.GenerationCount = generationsCount;
-            };
-            tutorialManager.OnRequiredCellsCount += RunGame;
-            tutorialManager.OnBeforeFirstCellBirth += () =>
-            {
-                generationManager.AllowBirth = true;
-                RunGame();
-            };
-            tutorialManager.OnIconGliderDrawn += () => { genPerSec *= 2; };
-            tutorialManager.OnFirstGenerationDraw += () => { touchHandler.IsTutorialOn = false; };
-            tutorialManager.OnTutorialCompleted += EndTutorial;
-            tutorialManager.OnSkipTutorial += SkipTutorial;
+                tutorialManager.OnAllCellsDead += () =>
+                {
+                    PauseGame();
+                    generationsCount = 0;
+                    tutorialManager.GenerationCount = generationsCount;
+                };
+                tutorialManager.OnRequiredCellsCount += RunGame;
+                tutorialManager.OnBeforeFirstCellBirth += () =>
+                {
+                    generationManager.AllowBirth = true;
+                    RunGame();
+                };
+                tutorialManager.OnIconGliderDrawn += () => { genPerSec *= 2; };
+                tutorialManager.OnFirstGenerationDraw += () => { touchHandler.IsTutorialOn = false; };
+                tutorialManager.OnTutorialCompleted += EndTutorial;
+                tutorialManager.OnSkipTutorial += SkipTutorial;
 
-            StartTutorial();
-        }
-        else
-        {
-            buttonPanelSlider.SlideIn();
+                StartTutorial();
+            }
+            else
+            {
+                buttonPanelSlider.SlideIn();
+            }
         }
     }
     private void Start()
@@ -216,6 +222,14 @@ public class GameController : MonoBehaviour
     {
         gameData.isTutorialOn = true;
         SceneManager.LoadScene(SceneNames.Game);
+    }
+
+    private void ShowRulesFromMenu()
+    {
+        if (tutorialManager == null) return;
+        tutorialManager.ShowRulesStandalone(
+            onSlideOutComplete => SlideToHiddenButtonsPanel(onSlideOutComplete),
+            () => { SlideInButtonsPanel(); });
     }
 
     public void RunGame()
@@ -356,6 +370,18 @@ public class GameController : MonoBehaviour
         if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Normal) return;
         uiButtonController.HidePatternsBook();
         uiButtonController.HideMenuPanel();
+    }
+
+    public void SlideToHiddenButtonsPanel(Action onComplete = null)
+    {
+        uiButtonController.HidePatternsBook();
+        uiButtonController.HideMenuPanel();
+        buttonPanelSlider.SlideToHidden(onComplete);
+    }
+
+    public void SlideInButtonsPanel()
+    {
+        buttonPanelSlider.SlideIn();
     }
 
     public void LoadPattern(PatternData patternData)

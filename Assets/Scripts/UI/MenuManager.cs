@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class MenuManager : MonoBehaviour
 {
     public event Action TutorialRequested;
+    public event Action RulesRequested;
 
     [Header("UI References")]
     [SerializeField] private GameObject menuPanel;
@@ -47,7 +48,7 @@ public class MenuManager : MonoBehaviour
     }
     public void OnRulesButtonClicked()
     {
-        Debug.Log("Opening Rules Panel");
+        RulesRequested?.Invoke();
     }
     public void OnSettingsButtonClicked()
     {
