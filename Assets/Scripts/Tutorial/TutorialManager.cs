@@ -87,8 +87,8 @@ public class TutorialManager : MonoBehaviour
     private const string firstLiveCellMessage = "This is a live cell ";
     private const string firstCellDeathMessage = "Loneliness kills";
     private const string addMoreToSurviveMessage = "Add more cells to keep them alive";
-    private const string tryAgainSurviveMessage = "Try again!\nThey are too lonely";
-    private const string wellDoneSurviveMessage = "Well done!";
+    private const string tryAgainSurviveMessage = "Try again\nThey are too far apart";
+    private const string wellDoneSurviveMessage = "Well done";
     private const string firstCellBirthMessage = "A cell comes to life when enough neighbors are around";
     private const string addTooManyCellsMessage = "Add more cells\n{1}/{0} ";
     private const string overpopulationMessage = "Overpopulation causes death";
@@ -319,9 +319,9 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                StartCoroutine(WaitAndProceed(1f, () => {  
+                StartCoroutine(WaitAndProceed(0.2f, () => {  
                 ShowMessage(firstLiveCellMessage, () => {
-                    StartCoroutine(WaitAndProceed(2f, () => { OnRequiredCellsCount?.Invoke(); }));
+                    StartCoroutine(WaitAndProceed(0.8f, () => { OnRequiredCellsCount?.Invoke(); }));
                 }, upperMessageBox);
                 }));
                 statePhase = StatePhase.Update;
@@ -343,7 +343,7 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                StartCoroutine(WaitAndProceed(1.5f, () => {  
+                StartCoroutine(WaitAndProceed(1.2f, () => {  
                 ShowMessage(firstCellDeathMessage, () => { StartCoroutine(WaitAndProceed(2.5f, () => {
                     statePhase = StatePhase.End; 
 
@@ -368,7 +368,7 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                StartCoroutine(WaitAndProceed(1f, () => { 
+                StartCoroutine(WaitAndProceed(0.5f, () => { 
                 ShowMessage(addMoreToSurviveMessage, () => 
                 {
                     touchHandler.SetCanAddCells(true);
@@ -404,11 +404,11 @@ public class TutorialManager : MonoBehaviour
             case StatePhase.Update:
                 if (cellGrid.IsLivingCellsSetEmpty())
                 {
-                    ShowStateTransition(tryAgainSurviveMessage, TutorialState.AddMoreToSurvive, lowerMessageBox, 1f, 1.5f);
+                    ShowStateTransition(tryAgainSurviveMessage, TutorialState.AddMoreToSurvive, lowerMessageBox, 0.5f, 3f);
                 }
                 else if (cellGrid.GetLivingCells().Count >= 3 && _generationCount >= 2)
                 {
-                    ShowStateTransition(wellDoneSurviveMessage, TutorialState.FirstCellBirth, lowerMessageBox, 1f, 1.5f);
+                    ShowStateTransition(wellDoneSurviveMessage, TutorialState.FirstCellBirth, lowerMessageBox, 0.5f, 1.5f);
                 }
                 break;
         }
@@ -426,7 +426,7 @@ public class TutorialManager : MonoBehaviour
                 {
                     OnAllCellsDead?.Invoke();
                     statePhase = StatePhase.End;
-                    StartCoroutine(WaitAndProceed(1.5f, () =>
+                    StartCoroutine(WaitAndProceed(0.8f, () =>
                     {
                         ShowMessage(firstCellBirthMessage, () =>
                         {
@@ -458,7 +458,6 @@ public class TutorialManager : MonoBehaviour
                 upperMessageBox.text = addTooManyCellsMessage.Replace("{0}", minCellsToAdd.ToString()).Replace("{1}", (cellGrid.GetLivingCells().Count.ToString()).ToString());
                 if (cellGrid.GetLivingCells().Count >= minCellsToAdd)
                 {
-                    
                     touchHandler.SetCanAddCells(false);
                     touchHandler.SetCanRemoveCells(false);
                     tutorialSpace.SetActive(false);
@@ -508,7 +507,7 @@ public class TutorialManager : MonoBehaviour
             case StatePhase.Update:
                 if (_generationCount >= 1)
                 {
-                    ShowStateTransition(overpopulationMessage, TutorialState.AfterOverpopulation, lowerMessageBox, 1f, 1.5f);
+                    ShowStateTransition(overpopulationMessage, TutorialState.AfterOverpopulation, lowerMessageBox, 0.5f, 1.5f);
                 }
                 break;
         }
@@ -526,7 +525,7 @@ public class TutorialManager : MonoBehaviour
                 {
                     statePhase = StatePhase.End;
                     OnAllCellsDead?.Invoke();
-                    StartCoroutine(WaitAndProceed(1f, () =>
+                    StartCoroutine(WaitAndProceed(0.5f, () =>
                     {                     
                         tutorialState = TutorialState.Rules;
                         statePhase = StatePhase.Start;
@@ -760,7 +759,7 @@ public class TutorialManager : MonoBehaviour
         {
             case StatePhase.Start:
                 ShowMessage(gamePurposeMessage1, () => {
-                    StartCoroutine(WaitAndProceed(2f, () => { statePhase = StatePhase.End; }));
+                    StartCoroutine(WaitAndProceed(1.8f, () => { statePhase = StatePhase.End; }));
                      }, upperMessageBox);
                 statePhase = StatePhase.Update;
                 break;
@@ -780,7 +779,7 @@ public class TutorialManager : MonoBehaviour
         {
             case StatePhase.Start:
                 ShowMessage(gamePurposeMessage2, () => {
-                    StartCoroutine(WaitAndProceed(2f, () => { statePhase = StatePhase.End; }));
+                    StartCoroutine(WaitAndProceed(2.5f, () => { statePhase = StatePhase.End; }));
                 }, upperMessageBox);
                 statePhase = StatePhase.Update;
                 break;

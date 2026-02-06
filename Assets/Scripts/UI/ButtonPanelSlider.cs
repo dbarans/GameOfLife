@@ -7,6 +7,7 @@ public class ButtonPanelSlider : MonoBehaviour
     private RectTransform rectTransform;
     private Vector2 normalPosition;
     private Vector2 extendedBookPosition = new Vector2(0f, 975f);
+    private Vector2 extendedMenuPosition = new Vector2(0f, 415f);
     [SerializeField] private Vector2 hiddenPosition;
     [SerializeField] private float animationDuration;
     [SerializeField] private GameObject slideInButton;
@@ -90,13 +91,16 @@ public class ButtonPanelSlider : MonoBehaviour
 
     public void SlideToExtended(ExtendedState state)
     {
+        Vector2 targetPosition = state == ExtendedState.MenuPanel ? extendedMenuPosition : extendedBookPosition;
         if (slideState == SlideState.Extended)
         {
             extendedState = state;
+            rectTransform.DOKill();
+            rectTransform.DOAnchorPos(targetPosition, animationDuration).SetEase(Ease.OutBack);
             return;
         }
         rectTransform.DOKill();
-        rectTransform.DOAnchorPos(extendedBookPosition, animationDuration).SetEase(Ease.OutBack)
+        rectTransform.DOAnchorPos(targetPosition, animationDuration).SetEase(Ease.OutBack)
             .OnComplete(() =>
             {
                 slideState = SlideState.Extended;
