@@ -73,45 +73,59 @@ public class GameController : MonoBehaviour
         touchHandler.SetVibrationManager(vibrationManager);
         TextAnimator.Initialize(vibrationManager);
 
-        uiButtonController.OnStartButtonClicked += HandleStartPauseToggle;
-        uiButtonController.OnPauseButtonClicked += PauseGame;
-        uiButtonController.OnResetButtonClicked += ResetGame;
-        uiButtonController.OnSaveButtonClicked += SaveGame;
-        uiButtonController.OnLoadButtonClicked += LoadGame;
-        uiButtonController.OnSpeedChanged += ChangeSpeed;
-        uiButtonController.OnPatternBookButtonClicked += OpenPatternBook;
-        uiButtonController.OnSlideInButtonClicked += SlideOutButtonsPanel;
-        
-        // Subscribe to pattern selection
-        if (uiButtonController.patternListManager != null)
+        if (uiButtonController != null)
         {
-            uiButtonController.patternListManager.OnPatternSelected += LoadPattern;
-        }
+            uiButtonController.OnStartButtonClicked += HandleStartPauseToggle;
+            uiButtonController.OnPauseButtonClicked += PauseGame;
+            uiButtonController.OnResetButtonClicked += ResetGame;
+            uiButtonController.OnSaveButtonClicked += SaveGame;
+            uiButtonController.OnLoadButtonClicked += LoadGame;
+            uiButtonController.OnSpeedChanged += ChangeSpeed;
+            uiButtonController.OnPatternBookButtonClicked += OpenPatternBook;
+            uiButtonController.OnMenuPanelButtonClicked += OpenMenuPanel;
+            uiButtonController.OnSlideInButtonClicked += SlideOutButtonsPanel;
 
-        if (gameData.isTutorialOn)
-        {
-            tutorialManager.OnAllCellsDead += () =>
+            if (uiButtonController.menuPanelManager != null)
             {
-                PauseGame();
-                generationsCount = 0;
-                tutorialManager.GenerationCount = generationsCount;
-            };
-            tutorialManager.OnRequiredCellsCount += RunGame;
-            tutorialManager.OnBeforeFirstCellBirth += () =>
-            {
-                generationManager.AllowBirth = true;
-                RunGame();
-            };
-            tutorialManager.OnIconGliderDrawn += () => { genPerSec *= 2; };
-            tutorialManager.OnFirstGenerationDraw += () => { touchHandler.IsTutorialOn = false; };
-            tutorialManager.OnTutorialCompleted += EndTutorial;
-            tutorialManager.OnSkipTutorial += SkipTutorial;
+                uiButtonController.menuPanelManager.TutorialRequested += RequestTutorialFromMenu;
+                uiButtonController.menuPanelManager.RulesRequested += ShowRulesFromMenu;
+            }
 
-            StartTutorial();
+            if (uiButtonController.patternListManager != null)
+                uiButtonController.patternListManager.OnPatternSelected += LoadPattern;
         }
         else
         {
-            buttonPanelSlider.SlideIn();
+            Debug.LogWarning("GameController: uiButtonController is not assigned. UI buttons will not work.");
+        }
+        if (tutorialManager != null)
+        {
+            tutorialManager.OnPressStartButtoState += SlideInButtonsPanel;
+            if (gameData.isTutorialOn)
+            {
+                tutorialManager.OnAllCellsDead += () =>
+                {
+                    PauseGame();
+                    generationsCount = 0;
+                    tutorialManager.GenerationCount = generationsCount;
+                };
+                tutorialManager.OnRequiredCellsCount += RunGame;
+                tutorialManager.OnBeforeFirstCellBirth += () =>
+                {
+                    generationManager.AllowBirth = true;
+                    RunGame();
+                };
+                tutorialManager.OnIconGliderDrawn += () => { genPerSec *= 2; };
+                tutorialManager.OnFirstGenerationDraw += () => { touchHandler.IsTutorialOn = false; };
+                tutorialManager.OnTutorialCompleted += EndTutorial;
+                tutorialManager.OnSkipTutorial += SkipTutorial;
+
+                StartTutorial();
+            }
+            else
+            {
+                buttonPanelSlider.SlideIn();
+            }
         }
     }
     private void Start()
@@ -201,8 +215,23 @@ public class GameController : MonoBehaviour
         PlayerPrefsManager.HasCompletedTutorial = true;
         PlayerPrefs.Save();
         gameData.isTutorialOn = false;
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene(SceneNames.Game);
     }
+
+    public void RequestTutorialFromMenu()
+    {
+        gameData.isTutorialOn = true;
+        SceneManager.LoadScene(SceneNames.Game);
+    }
+
+    private void ShowRulesFromMenu()
+    {
+        if (tutorialManager == null) return;
+        tutorialManager.ShowRulesStandalone(
+            onSlideOutComplete => SlideToHiddenButtonsPanel(onSlideOutComplete),
+            () => { SlideInButtonsPanel(); });
+    }
+
     public void RunGame()
     {
         if (CellManager.IsLivingCellsSetEmpty()) return;
@@ -313,15 +342,46 @@ public class GameController : MonoBehaviour
     }
     public void OpenPatternBook()
     {
+        if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Extended && buttonPanelSlider.GetExtendedState() == ButtonPanelSlider.ExtendedState.PatternsBook)
+        {
+            SlideOutButtonsPanel();
+            return;
+        }
         PauseGame();
-        buttonPanelSlider.SlideToPatternsBook();
+        buttonPanelSlider.SlideToExtended(ButtonPanelSlider.ExtendedState.PatternsBook);
         uiButtonController.ShowPatternsBook();
+        uiButtonController.HideMenuPanel();
+    }
+    public void OpenMenuPanel()
+    {
+        if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Extended && buttonPanelSlider.GetExtendedState() == ButtonPanelSlider.ExtendedState.MenuPanel)
+        {
+            SlideOutButtonsPanel();
+            return;
+        } 
+        PauseGame();
+        buttonPanelSlider.SlideToExtended(ButtonPanelSlider.ExtendedState.MenuPanel);
+        uiButtonController.ShowMenuPanel();
+        uiButtonController.HidePatternsBook();
     }
     public void SlideOutButtonsPanel()
     {
         buttonPanelSlider.SlideOut();
-        if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Extended) return;
+        if (buttonPanelSlider.GetSlideState() == ButtonPanelSlider.SlideState.Normal) return;
         uiButtonController.HidePatternsBook();
+        uiButtonController.HideMenuPanel();
+    }
+
+    public void SlideToHiddenButtonsPanel(Action onComplete = null)
+    {
+        uiButtonController.HidePatternsBook();
+        uiButtonController.HideMenuPanel();
+        buttonPanelSlider.SlideToHidden(onComplete);
+    }
+
+    public void SlideInButtonsPanel()
+    {
+        buttonPanelSlider.SlideIn();
     }
 
     public void LoadPattern(PatternData patternData)

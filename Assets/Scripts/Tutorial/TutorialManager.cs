@@ -87,8 +87,8 @@ public class TutorialManager : MonoBehaviour
     private const string firstLiveCellMessage = "This is a live cell ";
     private const string firstCellDeathMessage = "Loneliness kills";
     private const string addMoreToSurviveMessage = "Add more cells to keep them alive";
-    private const string tryAgainSurviveMessage = "Try again!\nThey are too lonely";
-    private const string wellDoneSurviveMessage = "Well done!";
+    private const string tryAgainSurviveMessage = "Try again\nThey are too far apart";
+    private const string wellDoneSurviveMessage = "Well done";
     private const string firstCellBirthMessage = "A cell comes to life when enough neighbors are around";
     private const string addTooManyCellsMessage = "Add more cells\n{1}/{0} ";
     private const string overpopulationMessage = "Overpopulation causes death";
@@ -113,6 +113,10 @@ public class TutorialManager : MonoBehaviour
     private TutorialState tutorialState = TutorialState.End;
     private StatePhase statePhase = StatePhase.End;
 
+    private Action _standaloneRulesOnClosed;
+    private bool _standaloneRulesWaitingForClick;
+    [SerializeField] private float standaloneRulesReenableInteractionDelay = 0.4f;
+
     private int _generationCount = 0;
 
     public int GenerationCount
@@ -130,6 +134,7 @@ public class TutorialManager : MonoBehaviour
     public Action OnIconGliderDrawn { get; set; }
     public Action OnFirstGenerationDraw { get; set; }
     public Action OnSkipTutorial { get; set; }
+    public Action OnPressStartButtoState { get; set; }
 
     private void Start()
     {
@@ -144,6 +149,20 @@ public class TutorialManager : MonoBehaviour
     }
     private void Update()
     {
+        if (_standaloneRulesOnClosed != null && rulesContainer != null && rulesContainer.activeSelf && Input.GetMouseButtonDown(0))
+        {
+            if (_standaloneRulesWaitingForClick)
+            {
+                _standaloneRulesWaitingForClick = false;
+                DoStandaloneRulesCleanup();
+            }
+            else
+            {
+                rulesPresentationManager?.StopPresentation();
+            }
+            return;
+        }
+
         if (!isTutorialOn) return;
 
         switch (tutorialState)
@@ -300,9 +319,9 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                StartCoroutine(WaitAndProceed(1f, () => {  
+                StartCoroutine(WaitAndProceed(0.2f, () => {  
                 ShowMessage(firstLiveCellMessage, () => {
-                    StartCoroutine(WaitAndProceed(2f, () => { OnRequiredCellsCount?.Invoke(); }));
+                    StartCoroutine(WaitAndProceed(0.8f, () => { OnRequiredCellsCount?.Invoke(); }));
                 }, upperMessageBox);
                 }));
                 statePhase = StatePhase.Update;
@@ -324,7 +343,7 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                StartCoroutine(WaitAndProceed(1.5f, () => {  
+                StartCoroutine(WaitAndProceed(1.2f, () => {  
                 ShowMessage(firstCellDeathMessage, () => { StartCoroutine(WaitAndProceed(2.5f, () => {
                     statePhase = StatePhase.End; 
 
@@ -349,7 +368,7 @@ public class TutorialManager : MonoBehaviour
         switch (statePhase)
         {
             case StatePhase.Start:
-                StartCoroutine(WaitAndProceed(1f, () => { 
+                StartCoroutine(WaitAndProceed(0.5f, () => { 
                 ShowMessage(addMoreToSurviveMessage, () => 
                 {
                     touchHandler.SetCanAddCells(true);
@@ -385,11 +404,11 @@ public class TutorialManager : MonoBehaviour
             case StatePhase.Update:
                 if (cellGrid.IsLivingCellsSetEmpty())
                 {
-                    ShowStateTransition(tryAgainSurviveMessage, TutorialState.AddMoreToSurvive, lowerMessageBox, 1f, 1.5f);
+                    ShowStateTransition(tryAgainSurviveMessage, TutorialState.AddMoreToSurvive, lowerMessageBox, 0.5f, 3f);
                 }
                 else if (cellGrid.GetLivingCells().Count >= 3 && _generationCount >= 2)
                 {
-                    ShowStateTransition(wellDoneSurviveMessage, TutorialState.FirstCellBirth, lowerMessageBox, 1f, 1.5f);
+                    ShowStateTransition(wellDoneSurviveMessage, TutorialState.FirstCellBirth, lowerMessageBox, 0.5f, 1.5f);
                 }
                 break;
         }
@@ -407,7 +426,7 @@ public class TutorialManager : MonoBehaviour
                 {
                     OnAllCellsDead?.Invoke();
                     statePhase = StatePhase.End;
-                    StartCoroutine(WaitAndProceed(1.5f, () =>
+                    StartCoroutine(WaitAndProceed(0.8f, () =>
                     {
                         ShowMessage(firstCellBirthMessage, () =>
                         {
@@ -439,7 +458,6 @@ public class TutorialManager : MonoBehaviour
                 upperMessageBox.text = addTooManyCellsMessage.Replace("{0}", minCellsToAdd.ToString()).Replace("{1}", (cellGrid.GetLivingCells().Count.ToString()).ToString());
                 if (cellGrid.GetLivingCells().Count >= minCellsToAdd)
                 {
-                    
                     touchHandler.SetCanAddCells(false);
                     touchHandler.SetCanRemoveCells(false);
                     tutorialSpace.SetActive(false);
@@ -489,7 +507,7 @@ public class TutorialManager : MonoBehaviour
             case StatePhase.Update:
                 if (_generationCount >= 1)
                 {
-                    ShowStateTransition(overpopulationMessage, TutorialState.AfterOverpopulation, lowerMessageBox, 1f, 1.5f);
+                    ShowStateTransition(overpopulationMessage, TutorialState.AfterOverpopulation, lowerMessageBox, 0.5f, 1.5f);
                 }
                 break;
         }
@@ -507,7 +525,7 @@ public class TutorialManager : MonoBehaviour
                 {
                     statePhase = StatePhase.End;
                     OnAllCellsDead?.Invoke();
-                    StartCoroutine(WaitAndProceed(1f, () =>
+                    StartCoroutine(WaitAndProceed(0.5f, () =>
                     {                     
                         tutorialState = TutorialState.Rules;
                         statePhase = StatePhase.Start;
@@ -538,13 +556,62 @@ public class TutorialManager : MonoBehaviour
                     rulesContainer.SetActive(false);
                     HideMessage(() =>
                     {
-                        tutorialState = TutorialState.ButtonsPanel;
+                        tutorialState = TutorialState.StartButton;
                         statePhase = StatePhase.Start;
                     }, upperMessageBox);
                 }
                 break;
         }
     }
+
+    public void ShowRulesStandalone(Action<Action> onOpen, Action onClosed)
+    {
+        if (isTutorialOn) return;
+        if (rulesContainer == null || rulesPresentationManager == null) return;
+
+        _standaloneRulesOnClosed = onClosed;
+        _standaloneRulesWaitingForClick = false;
+        onOpen?.Invoke(() =>
+        {
+            if (touchHandler != null)
+            {
+                touchHandler.SetCanAddCells(false);
+                touchHandler.SetCanRemoveCells(false);
+            }
+            if (cellGrid != null) cellGrid.HideGrid();
+            rulesContainer.SetActive(true);
+            rulesPresentationManager.StartPresentation(
+                () => { _standaloneRulesWaitingForClick = true; },
+                DoStandaloneRulesCleanup);
+        });
+    }
+
+    private void DoStandaloneRulesCleanup()
+    {
+        _standaloneRulesWaitingForClick = false;
+        if (rulesContainer != null) rulesContainer.SetActive(false);
+        if (cellGrid != null) cellGrid.RestoreFromHide();
+        StartCoroutine(ReenableCellInteractionNextFrame());
+        _standaloneRulesOnClosed?.Invoke();
+        _standaloneRulesOnClosed = null;
+    }
+
+    private IEnumerator ReenableCellInteractionNextFrame()
+    {
+        yield return new WaitForSeconds(standaloneRulesReenableInteractionDelay);
+        if (touchHandler != null)
+        {
+            touchHandler.SetCanAddCells(true);
+            touchHandler.SetCanRemoveCells(true);
+        }
+    }
+
+    public void CloseStandaloneRules()
+    {
+        if (_standaloneRulesOnClosed == null) return;
+        rulesPresentationManager?.StopPresentation();
+    }
+
     private void HandleDrawIconState()
     {
         switch (statePhase)
@@ -672,7 +739,7 @@ public class TutorialManager : MonoBehaviour
                 break;
 
             case StatePhase.Update:
-                if (buttonPanelSlider.IsExtended())
+                if (!buttonPanelSlider.IsHidden())
                 {
                     statePhase = StatePhase.End;
                     buttonsPanelButtonOFF.gameObject.SetActive(false);
@@ -692,7 +759,7 @@ public class TutorialManager : MonoBehaviour
         {
             case StatePhase.Start:
                 ShowMessage(gamePurposeMessage1, () => {
-                    StartCoroutine(WaitAndProceed(2f, () => { statePhase = StatePhase.End; }));
+                    StartCoroutine(WaitAndProceed(1.8f, () => { statePhase = StatePhase.End; }));
                      }, upperMessageBox);
                 statePhase = StatePhase.Update;
                 break;
@@ -712,7 +779,7 @@ public class TutorialManager : MonoBehaviour
         {
             case StatePhase.Start:
                 ShowMessage(gamePurposeMessage2, () => {
-                    StartCoroutine(WaitAndProceed(2f, () => { statePhase = StatePhase.End; }));
+                    StartCoroutine(WaitAndProceed(2.5f, () => { statePhase = StatePhase.End; }));
                 }, upperMessageBox);
                 statePhase = StatePhase.Update;
                 break;
@@ -737,6 +804,7 @@ public class TutorialManager : MonoBehaviour
             case (StatePhase.Start):
                 ShowMessage(startButtonMessage, () =>
                 {
+                    OnPressStartButtoState?.Invoke();
                     uiButtonController.SetButtonInteractable(UIButtonController.ButtonType.Start, true);
                     touchHandler.SetCanAddCells(true);
                     touchHandler.SetCanRemoveCells(true);
@@ -778,7 +846,7 @@ public class TutorialManager : MonoBehaviour
         {
             case StatePhase.Start:
                 ShowMessage(tutorialEndMessage, () => { StartCoroutine(WaitAndProceed(1f, () => { HideMessage(() => { },upperMessageBox); })); }, upperMessageBox);
-                buttonsPanelButtonOFF.gameObject.SetActive(true);
+                //buttonsPanelButtonOFF.gameObject.SetActive(true);
                 uiButtonController.SetAllButtonsInteractable(true);
                 uiButtonController.SetButtonInteractable(UIButtonController.ButtonType.Save, false);
                 uiButtonController.SetButtonInteractable(UIButtonController.ButtonType.Load, false);

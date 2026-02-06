@@ -8,6 +8,7 @@ public class CellManager : MonoBehaviour
     private HashSet<Vector3Int> livingCells = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> nextGeneration = new HashSet<Vector3Int>();
     private HashSet<Vector3Int> savedCells = new HashSet<Vector3Int>();
+    private HashSet<Vector3Int> hiddenStateCells;
     private bool stateChanged = false;
 
     private const int BUFFER_SIZE = 128;
@@ -389,6 +390,31 @@ public class CellManager : MonoBehaviour
                 livingCells.Add(cell);
             }
 
+            ResetGenerationBuffer();
+            stateChanged = true;
+        }
+    }
+
+    public void HideGrid()
+    {
+        lock (gridLock)
+        {
+            hiddenStateCells = new HashSet<Vector3Int>(livingCells);
+            livingCells.Clear();
+            nextGeneration.Clear();
+            InitializeGenerationBuffer();
+            stateChanged = true;
+        }
+    }
+
+    public void RestoreFromHide()
+    {
+        lock (gridLock)
+        {
+            if (hiddenStateCells == null) return;
+            livingCells = new HashSet<Vector3Int>(hiddenStateCells);
+            nextGeneration.Clear();
+            hiddenStateCells = null;
             ResetGenerationBuffer();
             stateChanged = true;
         }

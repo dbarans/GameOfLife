@@ -10,7 +10,6 @@ public class RulesController : MonoBehaviour
     [SerializeField] private TextMeshProUGUI playButtonText;
     [SerializeField] private Button playButton;
     [SerializeField] private float charactersPerSecond = 30f;
-    [SerializeField] private const string GAME_SCENE_NAME = "Game";
 
 
     public enum RuleState
@@ -85,7 +84,7 @@ public class RulesController : MonoBehaviour
     }
     public void OnPlayButtonClicked()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(GAME_SCENE_NAME);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(SceneNames.Game);
     }
 }
 
