@@ -73,20 +73,27 @@ public class GameController : MonoBehaviour
         touchHandler.SetVibrationManager(vibrationManager);
         TextAnimator.Initialize(vibrationManager);
 
-        uiButtonController.OnStartButtonClicked += HandleStartPauseToggle;
-        uiButtonController.OnPauseButtonClicked += PauseGame;
-        uiButtonController.OnResetButtonClicked += ResetGame;
-        uiButtonController.OnSaveButtonClicked += SaveGame;
-        uiButtonController.OnLoadButtonClicked += LoadGame;
-        uiButtonController.OnSpeedChanged += ChangeSpeed;
-        uiButtonController.OnPatternBookButtonClicked += OpenPatternBook;
-        uiButtonController.OnMenuPanelButtonClicked += OpenMenuPanel;
-        uiButtonController.OnSlideInButtonClicked += SlideOutButtonsPanel;
-        
-        // Subscribe to pattern selection
-        if (uiButtonController.patternListManager != null)
+        if (uiButtonController != null)
         {
-            uiButtonController.patternListManager.OnPatternSelected += LoadPattern;
+            uiButtonController.OnStartButtonClicked += HandleStartPauseToggle;
+            uiButtonController.OnPauseButtonClicked += PauseGame;
+            uiButtonController.OnResetButtonClicked += ResetGame;
+            uiButtonController.OnSaveButtonClicked += SaveGame;
+            uiButtonController.OnLoadButtonClicked += LoadGame;
+            uiButtonController.OnSpeedChanged += ChangeSpeed;
+            uiButtonController.OnPatternBookButtonClicked += OpenPatternBook;
+            uiButtonController.OnMenuPanelButtonClicked += OpenMenuPanel;
+            uiButtonController.OnSlideInButtonClicked += SlideOutButtonsPanel;
+
+            if (uiButtonController.menuPanelManager != null)
+                uiButtonController.menuPanelManager.TutorialRequested += RequestTutorialFromMenu;
+
+            if (uiButtonController.patternListManager != null)
+                uiButtonController.patternListManager.OnPatternSelected += LoadPattern;
+        }
+        else
+        {
+            Debug.LogWarning("GameController: uiButtonController is not assigned. UI buttons will not work.");
         }
 
         if (gameData.isTutorialOn)
@@ -202,8 +209,15 @@ public class GameController : MonoBehaviour
         PlayerPrefsManager.HasCompletedTutorial = true;
         PlayerPrefs.Save();
         gameData.isTutorialOn = false;
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene(SceneNames.Game);
     }
+
+    public void RequestTutorialFromMenu()
+    {
+        gameData.isTutorialOn = true;
+        SceneManager.LoadScene(SceneNames.Game);
+    }
+
     public void RunGame()
     {
         if (CellManager.IsLivingCellsSetEmpty()) return;

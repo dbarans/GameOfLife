@@ -1,11 +1,11 @@
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class MenuManager : MonoBehaviour
 {
+    public event Action TutorialRequested;
+
     [Header("UI References")]
     [SerializeField] private GameObject menuPanel;
     [SerializeField] private Button tutorialButton;
@@ -43,7 +43,7 @@ public class MenuManager : MonoBehaviour
 
     public void OnTutorialButtonClicked()
     {
-        Debug.Log("Opening Tutorial Panel");
+        TutorialRequested?.Invoke();
     }
     public void OnRulesButtonClicked()
     {
